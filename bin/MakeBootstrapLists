@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import sys
+import random as rn
+import os
+
+tfile = sys.argv[1]             # Input tped/tfam suffix.
+nboots = int(sys.argv[2])       # number of bootstrap for analysis (100 recommended).
+nsnp = int(sys.argv[3])			# Number of variants to use for analyses. If none or 0, use all.
+
+# Lists
+inds = []
+markers = []
+
+# Read input tped.
+totsnp = sum([1 for line in open(tfile)])
+if nsnp == 0:
+	nsnp = totsnp
+
+
+# Perform bootstrap.
+for boot in range(0, nboots):
+	boot += 1
+	otped = open("BS_" + str(boot) + '.txt', 'w')
+	[otped.write( "{}\n".format(rn.randint(0, totsnp-1)) ) for i in range(0, nsnp)]
+	otped.close()
+print("Bootstrapped lists ready.")

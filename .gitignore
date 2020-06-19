@@ -1,0 +1,7 @@
+dockerimage/
+.vscode
+*.pyc
+*TEST*
+*.nxs
+*.nwk
+*.xml

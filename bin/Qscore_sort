@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec 15 12:09:59 2015
+
+@author: andrea
+"""
+import sys
+import numpy as np
+import pandas as pd
+
+def getConv(inputfile):
+    conv = {}
+    for line in open(inputfile):
+        line = line.strip().split(";")
+        if len(line) == 4:
+            conv[line[0]] = [line[1], {line[3]: line[2]} ]
+    return conv
+    #return { line.strip().split()[0]:[ line.strip().split()[1], {line.strip().split()[3]: line.strip().split()[2]} ] for line in open(inputfile) if len(line.split(";")) == 4}
+
+
+def main():
+    # File di input
+    inQ = sys.argv[1]
+    conversion = getConv(sys.argv[2])
+    try: outname = sys.argv[3]
+    except: outname = "./Sorted.txt" 
+
+    # Array e liste per contenere i dati
+    animals=[]
+    values=[]
+    anim_info={}
+
+    for c, line in enumerate(open(inQ)):
+        line=line.strip().split()
+        try:
+            iidcode,fidcode = line[0], line[3]
+        except:
+            sys.exit(line)
+        iid, fid = conversion[iidcode][0], conversion[iidcode][1][fidcode]
+        animals.append( [fid, iid] )
+        val=list(map(float, line[5:]))
+        values.append(val)
+        anim_info[iid]=(c + 1, val)
+    values = np.array(values)
+    animals = np.array(animals)
+    breeds=np.array(sorted(set([i[0] for i in animals])))
+    ks=np.arange(0, values.shape[1])
+    print("K value is: ",values.shape[1])
+
+    outDF = None
+    for br in breeds:
+        print('Sorting %s.' % br)
+        branim = animals[animals[:, 0] == br, :]
+        val = values[animals[:, 0] == br, :]
+        means = np.mean(val, axis = 0)
+        mer = zip(means,ks)
+        mer.sort(reverse=True)
+        mer = np.array(mer)
+        df = pd.DataFrame(val, columns=["K{}".format(i + 1) for i in ks])
+        df = pd.concat([df.reset_index(drop=True), pd.DataFrame(branim, columns = ["FID", "ID"])], axis=1)
+        Korder = df.columns[mer[:,1].astype("int").tolist()].tolist()
+        df = df.sort_values(Korder, ascending=np.repeat(0, len(Korder)).tolist())
+        if outDF is None:
+            outDF = df
+            continue
+        outDF = pd.concat([outDF.reset_index(drop = True), df.reset_index(drop=True)], axis=0)
+    colOrders = ["FID","ID"] + ["K{}".format(i + 1) for i in ks]
+    outDF = outDF[colOrders]
+    outDF.to_csv(outname, sep = " ", header = False, float_format='%.8f')
+
+
+    return 0
+
+if __name__ == "__main__":
+    main()
+    pass
