@@ -1,15 +1,16 @@
+#!/usr/bin/env Rscript
 # Admix plot
-options(stringsAsFactors = F)
+options(stringsAsFactors = F, warn=-1, message = FALSE, readr.num_columns = 0)
 args = commandArgs(T)
-library(ggplot2)
-library(tidyverse)
-library(reshape2)
-library(forcats)
-library(ggthemes)
-library(patchwork)
+suppressPackageStartupMessages(library(ggplot2, quietly = TRUE))
+suppressPackageStartupMessages(library(tidyverse, quietly = TRUE))
+suppressPackageStartupMessages(library(reshape2, quietly = TRUE))
+suppressPackageStartupMessages(library(forcats, quietly = TRUE))
+suppressPackageStartupMessages(library(ggthemes, quietly = TRUE))
+suppressPackageStartupMessages(library(patchwork, quietly = TRUE))
 
 
-CV = read.table("CV/All_CVs.txt", h=F) %>% 
+CV = read.table("All_CVs.txt", h=F) %>% 
   select(K = V3, CV = V4)
 CV$K = extract_numeric(CV$K)
 CV$K = factor(CV$K, levels = sort(unique(CV$K)))
@@ -18,12 +19,12 @@ cvp = CV %>%
   ggplot(aes(x = K, y=CV)) +
   geom_boxplot() + 
   labs(title = "CV error - 100 bootstrap", x = "K", y = "CV error distribution")
-ggsave("CV/CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
+ggsave("CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
-for (k in c(2:10)){
+for (k in c(2:args[1])){
 
-  fname = paste("CLUMPP/K",k,"/Sorted.",k,'.txt', sep = '')
-  plotname = paste("CLUMPP/K",k,'/ADMIXTURE_PLOT_',k,'.pdf', sep = '')
+  fname = paste("Sorted.",k,'.txt', sep = '')
+  plotname = paste('ADMIXTURE_PLOT_',k,'.pdf', sep = '')
   toplot = read.table(fname, h = F)
   toplot$V1 = NULL
   colnames(toplot)[1] = 'POP'
