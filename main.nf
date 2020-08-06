@@ -26,8 +26,6 @@ process prune {
 
     memory { 8.GB * task.attempt }
     time { 6.hour * task.attempt }
-    errorStrategy { task.exitStatus == 0 ? 'finish' : 'retry' }
-    maxRetries = 1
     
     output:
     tuple "pruned.bed", "pruned.bim", "pruned.fam" into pruned_ch
@@ -70,8 +68,6 @@ process transpose {
 
     memory { 8.GB * task.attempt }
     time { 4.hour * task.attempt }
-    errorStrategy { task.exitStatus == 0 ? 'finish' : 'retry' }
-    maxRetries = 1
 
     input:
     tuple bed, bim, fam from pruned_ch
@@ -175,10 +171,10 @@ bootstrapResults
 
 process clumpp{
     tag "clumpp.${k}"
+    publishDir "${params.outfolder}/CLUMPP", mode: 'copy', overwrite: true
 
     memory { 32.GB * task.attempt }
     time { 4.hour * task.attempt }
-    publishDir "${params.outfolder}/CLUMPP", mode: 'copy', overwrite: true
 
     input:
     tuple k, xs, file(qs), file(ps) from kvals_ch
@@ -208,10 +204,10 @@ process clumpp{
 
 process getCVerrors{
     tag "CVerr"
+    publishDir "${params.outfolder}/CV", mode: 'copy', overwrite: true
 
     memory { 4.GB * task.attempt }
     time { 2.hour * task.attempt }
-    publishDir "${params.outfolder}/CV", mode: 'copy', overwrite: true
 
     input:
     file logs from bootstrapsLogs.collect()
@@ -233,10 +229,10 @@ process getCVerrors{
 
 process getHprimes{
     tag "Hpr"
+    publishDir "${params.outfolder}/Hpr", mode: 'copy', overwrite: true
 
     memory { 2.GB * task.attempt }
     time { 1.hour * task.attempt }
-    publishDir "${params.outfolder}/Hpr", mode: 'copy', overwrite: true
 
     input:
     file hfiles from hprimefiles_ch.collect()
@@ -253,10 +249,10 @@ process getHprimes{
 
 process makePlots{
     tag "plot"
+    publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
 
     memory { 8.GB * task.attempt }
     time { 1.hour * task.attempt }
-    publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
 
     input:
     file sortedfiles from sortedfiles_ch.collect()
