@@ -15,46 +15,76 @@ params.allowExtrChr = '--allow-extra-chr'
 params.setHHmiss = '--set-hh-missing'
 params.moreplinkopt = ''
 params.variants2use = 1000000
+params.pruneP = "50000 1 0.1"
 
 
 /*
- * Step 1. Create file TPED/TMAP
+ * Step 1. Prune input data
  */
+process prune {
+    tag "prune"
 
-process transpose {
-    tag "transp"
-
+    memory { 8.GB * task.attempt }
+    time { 6.hour * task.attempt }
     errorStrategy { task.exitStatus == 0 ? 'finish' : 'retry' }
     maxRetries = 1
     
+    output:
+    tuple "pruned.bed", "pruned.bim", "pruned.fam" into pruned_ch
+    
+    script:
+    if( params.ftype == 'vcf' )
+        """
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --vcf ${params.infile} --indep-pairwise ${params.pruneP} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --vcf ${params.infile} --make-bed --out pruned --extract PRUNE.prune.in --threads ${task.cpus}
+        """
+    else if( params.ftype == 'bcf' )
+        """
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bcf ${params.infile} --indep-pairwise ${params.pruneP} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bcf ${params.infile} --make-bed --out pruned --extract PRUNE.prune.in --threads ${task.cpus}
+        """
+    else if( params.ftype == 'ped' )
+        """
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --file ${params.infile} --indep-pairwise ${params.pruneP} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --file ${params.infile} --make-bed --out pruned --extract PRUNE.prune.in --threads ${task.cpus}
+        """
+    else if( params.ftype == 'bed' )
+        """
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bfile ${params.infile} --indep-pairwise ${params.pruneP} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bfile ${params.infile} --make-bed --out pruned --extract PRUNE.prune.in --threads ${task.cpus}
+        """
+    else if ( params.ftype == "tped" )
+        """
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --tfile ${params.infile} --indep-pairwise ${params.pruneP} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --tfile ${params.infile} --make-bed --out pruned --extract PRUNE.prune.in --threads ${task.cpus}        """
+    else
+        error "Invalid file type: ${params.ftype}"
+}
+
+
+/*
+ * Step 2. Create file TPED/TMAP
+ */
+process transpose {
+    tag "transp"
+
+    memory { 8.GB * task.attempt }
+    time { 4.hour * task.attempt }
+    errorStrategy { task.exitStatus == 0 ? 'finish' : 'retry' }
+    maxRetries = 1
+
+    input:
+    tuple bed, bim, fam from pruned_ch
+
     output:
     tuple "transposed.tped", "transposed.tfam" into transposed_ch
     file "transposed.tfam" into famfile_ch 
 
     script:
-    if( params.ftype == 'vcf' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --vcf ${params.infile} --recode transpose --out transposed ${params.moreplinkopt} --threads ${task.cpus}
-        """
-    else if( params.ftype == 'bcf' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bcf ${params.infile} --recode transpose --out transposed ${params.moreplinkopt} --threads ${task.cpus}
-        """
-    else if( params.ftype == 'ped' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --file ${params.infile} --recode transpose --out transposed ${params.moreplinkopt} --threads ${task.cpus}
-        """
-    else if( params.ftype == 'bed' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bfile ${params.infile} --recode transpose --out transposed ${params.moreplinkopt} --threads ${task.cpus}
-        """
-    else if ( params.ftype == "tped" )
-        """
-        ln -s ${params.infile}.tped transposed.tped
-        ln -s ${params.infile}.tfam transposed.tfam
-        """
-    else
-        error "Invalid file type: ${params.ftype}"
+    """
+    plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bed ${bed} --bim ${bim} --fam ${fam} --recode transpose --out transposed ${params.moreplinkopt} --threads ${task.cpus}
+    """
+
 
 }
 
@@ -66,6 +96,9 @@ transposed_ch.into { tr1_ch; tr2_ch }
 
 process makeBSlists {
     tag "makeBS"
+
+    memory { 8.GB * task.attempt }
+    time { 6.hour * task.attempt }
 
     input:
     tuple tped, tfam from tr1_ch
@@ -84,6 +117,9 @@ process makeBSlists {
 
 process getBSlists {
     tag "getBS"
+
+    memory { 2.GB * task.attempt }
+    time { 1.hour * task.attempt }
 
     input:
     //Collect the generated files
@@ -110,6 +146,10 @@ process getBSlists {
 process admixboost { 
     tag "boost.${k}.${x}"
 
+    /* Parameters */
+    memory { 16.GB * task.attempt }
+    time { 12.hour * task.attempt }
+
     input: 
         tuple k, x, "BS_${x}.txt" from bootstrapLists
         tuple tped, tfam from transposed_ch
@@ -135,6 +175,9 @@ bootstrapResults
 
 process clumpp{
     tag "clumpp.${k}"
+
+    memory { 32.GB * task.attempt }
+    time { 4.hour * task.attempt }
     publishDir "${params.outfolder}/CLUMPP", mode: 'copy', overwrite: true
 
     input:
@@ -145,6 +188,7 @@ process clumpp{
     path "./K${k}" into concat_ch
     file "./K${k}/Clumpp_userdef.miscfile" into miscfiles_ch
     file "./K${k}/Sorted.${k}.txt" into sortedfiles_ch
+    file "./K${k}/Hpr.${k}.txt" into hprimefiles_ch
 
     // Concatenate Bootstrap Trees
     script:
@@ -157,12 +201,16 @@ process clumpp{
     mkdir K${k}
     mv Clumpp_userdef.* ./K${k}/
     Qscore_sort K${k}/Clumpp_userdef.outfile K${k}/Clumpp_userdef.conv K${k}/Sorted.${k}.txt
+    python -c "import sys; KV=sys.argv[2]; HP=[ line.strip().split()[-1] for line in open(sys.argv[1]) if 'highest value of ' in line ]; print('{}\t{}'.format(KV[0], HP[0])) " K${k}/Clumpp_userdef.miscfile ${k} > K${k}/Hpr.${k}.txt
     """
 }
 
 
 process getCVerrors{
     tag "CVerr"
+
+    memory { 4.GB * task.attempt }
+    time { 2.hour * task.attempt }
     publishDir "${params.outfolder}/CV", mode: 'copy', overwrite: true
 
     input:
@@ -185,25 +233,29 @@ process getCVerrors{
 
 process getHprimes{
     tag "Hpr"
+
+    memory { 2.GB * task.attempt }
+    time { 1.hour * task.attempt }
     publishDir "${params.outfolder}/Hpr", mode: 'copy', overwrite: true
 
     input:
-    file miscfiles from miscfiles_ch.collect()
+    file hfiles from hprimefiles_ch.collect()
     
     output:
     file "Hprimes.txt" into hprimes_ch
 
     script:
     """
-    for miscfile in ${miscfiles}; do 
-        python -c "import sys; KV=[ line.strip().split()[-1] for line in open(sys.argv[1]) if 'K = ' in line ]; HP=[ line.strip().split()[-1] for line in open(sys.argv[1]) if 'highest value of ' in line ]; print('{}\t{}'.format(KV[0], HP[0])) " \$miscfile 
-    done > Hprimes.txt
+    cat ${hfiles} > Hprimes.txt
     """
 }
 
 
 process makePlots{
     tag "plot"
+
+    memory { 8.GB * task.attempt }
+    time { 1.hour * task.attempt }
     publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
 
     input:
@@ -216,7 +268,6 @@ process makePlots{
 
     script:
     """
-    makePlots $cvs $hprimes $sortedfiles
+    makePlots ${params.nk}
     """
-
 }
