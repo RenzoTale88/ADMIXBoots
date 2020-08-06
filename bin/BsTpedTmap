@@ -14,27 +14,22 @@ nboot=sys.argv[4]
 inds = []
 markers = []
 
-# # Store input tfam.
-# for line in open(tfam):
-# 	inds.append(line)
+# Store input tfam.
+for line in open(tfam):
+	inds.append(line)
 
-# # Read input tped.
-# for line in open(tped):
-# 	markers.append(line)
+# Read input tped.
+for line in open(tped):
+	markers.append(line)
 
 # Number of SNP to choose.
 nsnp = len(markers)
 
-# Get marker position list.
-mrklist = sorted([int(i) for i in open(bsfile)])
-# Get number of repetitions
-counts = dict(zip(mrklist, [mrklist.count(i) for i in list(mrklist)]))
-
-# Save a tfam
+# Perform bootstrap.
+mrklist = [int(i) for i in open(bsfile)]
 otfam = open("BS_" + str(nboot) + '.tfam', 'w')
-[otfam.write('%s' % i) for i in open(tfam)]
+[otfam.write('%s' % i) for i in inds]
 otfam.close()
-# Save a tped
 otped = open("BS_" + str(nboot) + '.tped', 'w')
-[ [otped.write( "{}".format(line) ) for line in range(0, counts.get(n, 1) )] for n,line in enumerate(open(tped)) if n in mrklist ]
+[otped.write("%s" % markers[mrk]) for mrk in mrklist]
 otped.close()
