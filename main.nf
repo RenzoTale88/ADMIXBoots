@@ -14,7 +14,7 @@ params.outfolder = "${baseDir}/OUTPUT"
 params.allowExtrChr = '--allow-extra-chr'
 params.setHHmiss = '--set-hh-missing'
 params.moreplinkopt = ''
-params.variants2use = 1000000
+params.subset = 1000000
 params.pruneP = "500 5 0.5"
 
 
@@ -83,12 +83,8 @@ process makeBSlists {
 
     script:
     """
-    nvar=`wc -l ${tped}`
-    if [ ${params.subset} > \$nvar ]; then
-        MakeBootstrapLists ${tped} ${params.bootstrap} \$nvar
-    else    
-        MakeBootstrapLists ${tped} ${params.bootstrap} ${params.subset}
-    fi
+    nvar=`python -c "import sys; nrows=sum([1 for line in open(sys.argv[1])]); sys.stdout.write(str(nrows)) if nrows<int(sys.argv[2]) else sys.stdout.write(sys.argv[2])" ${tped} ${params.subset} `
+    MakeBootstrapLists ${tped} ${params.bootstrap} \$nvar
     if [ ! -e LISTS ]; then mkdir LISTS; fi
     mv BS_*.txt ./LISTS
     """
@@ -265,10 +261,10 @@ process makePlots{
     suppressPackageStartupMessages(library(patchwork, quietly = TRUE))
 
     # Plot CV errors
-    CV = read.table("${cvs}", h=F) %>% 
+    CV = read.table("${cvs}", h=F, sep = ' ') %>% 
         select(K = V3, CV = V4)
-    CV$K = extract_numeric(CV$K)
-    CV$K = factor(CV$K, levels = sort(unique(CV$K)))
+    CV[,'K'] = parse_number(CV[,'K'])
+    CV[,'K'] = factor(CV[,'K'], levels = sort(unique(CV[,'K'])))
 
     cvp = CV %>% 
         ggplot(aes(x = K, y=CV)) +
@@ -278,11 +274,11 @@ process makePlots{
 
     # Plot H prime values
     hpr = read.table("${hprimes}", h=F) %>% 
-        select(K = V3, H = V4)
-    hpr$K = factor(hpr$K, levels = sort(unique(hpr$K)))
+        select(K = V1, H = V2)
+    hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
 
     hp = hpr %>% 
-        ggplot(aes(x = K, y=CV)) +
+        ggplot(aes(x = K, y=H)) +
         geom_point() + 
         labs(title = "H' - 100 bootstrap", x = "K", y = "H'")
     ggsave("Hprimes.pdf", plot = hp, device = "pdf", width = 12, height = 8)
@@ -292,11 +288,11 @@ process makePlots{
         fname = paste("Sorted.",k,'.txt', sep = '')
         plotname = paste('ADMIXTURE_PLOT_',k,'.pdf', sep = '')
         toplot = read.table(fname, h = F)
-        toplot$V1 = NULL
+        toplot[,'V1'] = NULL
         colnames(toplot)[1] = 'POP'
         colnames(toplot)[2] = 'IND'
-        toplot$POP = factor(toplot$POP, levels = unique(sort(toplot$POP)))
-        toplot = toplot[order(toplot$POP),]
+        toplot[,'POP'] = factor(toplot[,'POP'], levels = unique(sort(toplot[,'POP'])))
+        toplot = toplot[order(toplot\$POP),]
         cols<-c("red","lightgreen","darkblue","127","hotpink3","orange","lightblue","#C12869","lightcoral","seagreen","#CCFB5D","#E9CFEC","#C3FDB8","#9E8335","#E8A317","purple","yellowgreen","darkgreen","lightgrey","#7F5217","#5819B3","#5CAFA9","#944B21","#FBB917","#6A287E","#7D0552","#C38EC7","#C9C299","blue","#6C4403","#738017","#43C6DB","#EDE275","darkgray","#C34A2C","black","pink","#736AFF","#B93B8F")
         toplot2 = toplot
         colnames(toplot2)[3:ncol(toplot2)] = seq(1:k)
