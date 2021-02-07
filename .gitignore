@@ -5,3 +5,4 @@ dockerimage/
 *.nxs
 *.nwk
 *.xml
+test.config
