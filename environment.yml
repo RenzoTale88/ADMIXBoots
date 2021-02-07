@@ -1,0 +1,19 @@
+name: rohcalc
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - admixture
+  - clumpp
+  - R
+  - r-base
+  - r-tidyverse
+  - r-reshape2
+  - r-forcats
+  - r-ggthemes
+  - r-patchwork
+  - python=3
+  - numpy
+  - pandas
