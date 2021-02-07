@@ -1,4 +1,4 @@
-name: rohcalc
+name: admixboots
 channels:
   - bioconda
   - conda-forge
