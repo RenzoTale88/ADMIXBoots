@@ -26,17 +26,17 @@ In the case the system doesn't support docker/singularity, it is possible to dow
 This script will download a series of software and save them in the ./bin folder, including:
  1. [admixture](https://dalexander.github.io/admixture/download.html)
  2. [plink](https://www.cog-genomics.org/plink) with packages:
-    a. numpy
-    b. pandas
+    1. numpy
+    2. pandas
  3. [python3](https://www.python.org/downloads/)
  4. [clumpp](https://rosenberglab.stanford.edu/clumpp.html)
  5. [R](https://www.r-project.org/) with packages:
-    a. ggplot2
-    b. tidyverse
-    c. reshape2
-    d. forcats
-    e. ggthemes
-    f. patchwork
+    1. ggplot2
+    2. tidyverse
+    3. reshape2
+    4. forcats
+    5. ggthemes
+    6. patchwork
 
 Remember to add the ```bin``` folder to your path with the command:
 ```
