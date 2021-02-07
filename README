@@ -1,32 +1,64 @@
+# ADMIXBoots
+## Nextflow Bootstrapped ADMIXTURE workflow
 
-## Create tree
-To create the tree, it is necessary to have installed:
+## Introduction
+*ADMIXBoots* is a nextflow implementation of a bootstrapped admixture pipeline. 
 
- 1. FigTree[https://github.com/rambaut/figtree]
- 2. forester[https://sites.google.com/site/cmzmasek/home/software/forester/phyloxml-converter], 
- 3. Graphlan[https://bitbucket.org/nsegata/graphlan/wiki/Home]
- 4. Python 2.7 with the packages colormap, xml and biopython.
+## Dependencies
+### Nextflow
+Nextflow needs to be installed and in your path to be able to run the pipeline. 
+To do so, follow the instructions [here](https://www.nextflow.io/)
 
-The tree is processed using FigTree as follow:
+### Profiles
+*ADMIXBoots* comes with a series of pre-defined profiles:
+ - standard: this profile runs all dependencies in docker and other basic presets to facilitate the use
+ - local: runs using local exe instead of containerized/conda dependencies (see manual installation for further details)
+ - docker: force the use of docker 
+ - singularity: runs the dependencies within singularity
+ - conda: runs the dependencies within conda
+ - uge: runs using UGE scheduling system
+ - sge: runs using SGE scheduling system
+A docker image is available with all the dependencies at tale88/nf-roh. This docker ships all necessary dependencies to run nf-roh. 
+This is the recommended mode of usage of the software, since all the dependencies come shipped in the container.
 
-   a. Generate a tree with the branches coloured, but in the same order and length
-   b. Save it as a Nexus file (file > export tree > Nexus > flag all options)
-   c. Generate a transformed tree (left menu > tree > flag transform branches)
-   d. Save it as nexus tree as well
- 
-Then, open the two trees in forester.jar and export them as PhyloXML 
-   (file > save tree as... > select PhyloXML)
+### Manual installation
+In the case the system doesn't support docker/singularity, it is possible to download them all through the script install.sh.
+This script will download a series of software and save them in the ./bin folder, including:
+ 1. [admixture](https://dalexander.github.io/admixture/download.html)
+ 2. [plink](https://www.cog-genomics.org/plink) with packages:
+    a. numpy
+    b. pandas
+ 3. [python3](https://www.python.org/downloads/)
+ 4. [clumpp](https://rosenberglab.stanford.edu/clumpp.html)
+ 5. [R](https://www.r-project.org/) with packages:
+    a. ggplot2
+    b. tidyverse
+    c. reshape2
+    d. forcats
+    e. ggthemes
+    f. patchwork
 
-The two phyloxml files are then joined using JoinPhyloXMLannotations.py:
+Remember to add the ```bin``` folder to your path with the command:
+```
+export PATH=$PATH:$PWD/bin
+```
+Or link te folder to the working directory:
+```
+ln -s /PATH/TO/bin
+```
 
-    python JoinPhyloXMLannotations.py Tree1.xml Tree2.xml
+Ready to go!
 
-The resulting phyloxml is then fixed for marker scale and labels size using the script FixGraphlanXml.py:
 
-    python FixGraphlanXml.py final.xml 10 1 > toplot.xml
+## Running the pipeline
+Note: I am currently working on the test dataset for the analysis.
+To test the pipeline locally, simply run:
+```
+nextflow run RenzoTale88/ADMIXBoots 
+    -profile test,docker
+```
+This will download and run the pipeline on the two toy genomes provided and generate liftover files. If you have all dependencies installed locally
+you can omit ```docker``` from the profile configuration.
 
-Finally, run graphlan as follow:
+# References
 
-    graphlan.py toplot.xml mytree.png --dpi 300 --size 15
-
-This will generate the resulting phylogenetic tree. 
