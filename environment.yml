@@ -8,6 +8,7 @@ channels:
 dependencies:
   - admixture
   - clumpp
+  - plink
   - R
   - r-base
   - r-tidyverse
