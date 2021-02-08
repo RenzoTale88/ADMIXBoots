@@ -1,0 +1,35 @@
+#!/usr/bin/env Rscript
+# Admix plot
+options(stringsAsFactors = F, warn=-1, message = FALSE, readr.num_columns = 0)
+args = commandArgs(T)
+suppressPackageStartupMessages(library(ggplot2, quietly = TRUE))
+suppressPackageStartupMessages(library(tidyverse, quietly = TRUE))
+suppressPackageStartupMessages(library(reshape2, quietly = TRUE))
+suppressPackageStartupMessages(library(forcats, quietly = TRUE))
+suppressPackageStartupMessages(library(ggthemes, quietly = TRUE))
+suppressPackageStartupMessages(library(patchwork, quietly = TRUE))
+
+# Plot CV errors
+CV = read.table(args[1], h=F, sep = ' ') %>% 
+    select(K = V3, CV = V4)
+CV[,'K'] = parse_number(CV[,'K'])
+CV[,'K'] = factor(CV[,'K'], levels = sort(unique(CV[,'K'])))
+
+cvp = CV %>% 
+    ggplot(aes(x = K, y=CV)) +
+    geom_boxplot() + 
+    labs(title = "CV error - 100 bootstrap", x = "K", y = "CV error distribution")
+ggsave("CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
+
+# Plot H prime values
+hpr = read.table(args[2], h=F) %>% 
+    select(K = V1, H = V2)
+hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
+
+hp = hpr %>% 
+    ggplot(aes(x = K, y=H)) +
+    geom_point() + 
+    labs(title = "H' - 100 bootstrap", x = "K", y = "H'")
+ggsave("Hprimes.pdf", plot = hp, device = "pdf", width = 12, height = 8)
+
+

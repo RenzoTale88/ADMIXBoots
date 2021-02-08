@@ -32,6 +32,9 @@ ADD ./bin/arrange /usr/local/bin/
 ADD ./bin/BestBootstrappedK /usr/local/bin/
 ADD ./bin/BsTpedTmap /usr/local/bin/
 ADD ./bin/MakeBootstrapLists /usr/local/bin/
+ADD ./bin/makePlots /usr/local/bin/
+ADD ./bin/AdmixturePlot /usr/local/bin/
+ADD ./bin/StatsPlots /usr/local/bin/
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
