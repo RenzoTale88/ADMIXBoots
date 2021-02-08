@@ -54,9 +54,7 @@ def main():
         branim = animals[animals[:, 0] == br, :]
         val = values[animals[:, 0] == br, :]
         means = np.mean(val, axis = 0)
-        mer = np.array(zip(means,ks))
-        #list(mer).sort(reverse=True)
-        mer = mer[::-1].sort()
+        mer = np.array(sorted(zip(means,ks), key=lambda x: x[0]))
         df = pd.DataFrame(val, columns=["K{}".format(i + 1) for i in ks])
         df = pd.concat([df.reset_index(drop=True), pd.DataFrame(branim, columns = ["FID", "ID"])], axis=1)
         Korder = df.columns[mer[:,1].astype("int").tolist()].tolist()
