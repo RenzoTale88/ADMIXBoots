@@ -5,8 +5,8 @@ workflow POSTPROCESS {
     take:
         tped
         tfam
-        admixboostres
         admixboostlogs
+        admixboostres
 
     main:
         // Run clumpp
