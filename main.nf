@@ -42,7 +42,6 @@ Pruning parameters  : $params.prune_params
 Allow extra chr     : $params.allowExtrChr
 Set HH missing      : $params.setHHmiss
 Additional plink opt: $params.moreplinkopt
-Filtering           : $params.filter_param
 
 """ 
 
