@@ -12,7 +12,7 @@ workflow ADMIXBOOST {
         n_boot = Channel
           .from( 1..params.bootstrap )
         n_k = Channel
-          .from( 1..params.nk )
+          .from( 2..params.nk )
 
         getBSlists(lists, n_boot, n_k)
         admixboost( getBSlists.out, tped, tfam )
