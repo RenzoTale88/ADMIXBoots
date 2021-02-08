@@ -52,7 +52,8 @@ include {ADMIXBOOST} from './lib/subworkflows/admixboost' params(params)
 include {POSTPROCESS} from './lib/subworkflows/postprocess' params(params)
 
 workflow {
-    PREPROCESS()
-    ADMIXBOOST( PREPROCESS.out )
-    POST_ROH( PREPROCESS.out[0], PREPROCESS.out[1], ADMIXBOOST.out[0], ADMIXBOOST.out[1] )
+    main:
+        PREPROCESS()
+        ADMIXBOOST( PREPROCESS.out[0], PREPROCESS.out[1], PREPROCESS.out[2] )
+        POSTPROCESS( PREPROCESS.out[0], PREPROCESS.out[1], ADMIXBOOST.out[0], ADMIXBOOST.out[1] )
 }
