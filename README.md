@@ -13,9 +13,9 @@ To do so, follow the instructions [here](https://www.nextflow.io/)
 *ADMIXBoots* comes with a series of pre-defined profiles:
  - standard: this profile runs all dependencies in docker and other basic presets to facilitate the use
  - local: runs using local exe instead of containerized/conda dependencies (see manual installation for further details)
- - docker: force the use of docker 
- - singularity: runs the dependencies within singularity
- - conda: runs the dependencies within conda
+ - docker: use docker to run the workflow 
+ - singularity: use singularity to run the container
+ - conda: runs the dependencies within anaconda
  - uge: runs using UGE scheduling system
  - sge: runs using SGE scheduling system
 A docker image is available with all the dependencies at tale88/nf-roh. This docker ships all necessary dependencies to run nf-roh. 
