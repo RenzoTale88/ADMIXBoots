@@ -55,7 +55,7 @@ def main():
         val = values[animals[:, 0] == br, :]
         means = np.mean(val, axis = 0)
         mer = zip(means,ks)
-        mer.sort(reverse=True)
+        list(mer).sort(reverse=True)
         mer = np.array(mer)
         df = pd.DataFrame(val, columns=["K{}".format(i + 1) for i in ks])
         df = pd.concat([df.reset_index(drop=True), pd.DataFrame(branim, columns = ["FID", "ID"])], axis=1)
