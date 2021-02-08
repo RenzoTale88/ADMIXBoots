@@ -26,6 +26,14 @@ RUN /venv/bin/conda-unpack
 # for us.
 FROM debian:buster AS runtime
 
+# Add missing executable from local repo
+ADD ./bin/AdmixPermute /usr/local/bin/
+ADD ./bin/arrange /usr/local/bin/ 
+ADD ./bin/BestBootstrappedK /usr/local/bin/
+ADD ./bin/BsTpedTmap /usr/local/bin/
+ADD ./bin/MakeBootstrapLists /usr/local/bin/
+RUN chmod a+x /usr/local/bin/*
+
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
 
