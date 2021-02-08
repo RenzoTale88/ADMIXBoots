@@ -1,5 +1,5 @@
 
-include {clumpp; getCVerrors; getHprimes; makePlots} from "../processes/postprocesses"
+include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../processes/postprocesses"
 
 workflow POSTPROCESS {
     take:
@@ -19,7 +19,8 @@ workflow POSTPROCESS {
         getCVerrors(admixboostlogs.collect() )
 
         // Make final plots
-        makePlots(clumpp.out[2], getHprimes.out, getCVerrors.out[1])
-
+        //makePlots(clumpp.out[2], getHprimes.out, getCVerrors.out[1])
+        plotAdmixtures(clumpp.out[2])
+        plotStats(getHprimes.out, getCVerrors.out[1])
 }
 

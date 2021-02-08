@@ -13,7 +13,7 @@ process clumpp{
     output:
     path "./K${k}"
     path "./K${k}/Clumpp_userdef.miscfile" 
-    path "./K${k}/Sorted.${k}.txt" 
+    tuple val(k), path("./K${k}/Sorted.${k}.txt") 
     path "./K${k}/Hpr.${k}.txt"
 
     // Concatenate Bootstrap Trees
@@ -73,13 +73,12 @@ process getHprimes{
 }
 
 
-process makePlots{
-    tag "plot"
+process plotStats{
+    tag "plot_stats"
     label 'medium'
     publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
 
     input:
-    path sortedfiles
     path hprimes
     path cvs
     
@@ -88,6 +87,24 @@ process makePlots{
 
     script:
     """
-    makePlots ${cvs} ${hprimes} "Sorted"
+    StatsPlots ${cvs} ${hprimes}
+    """
+}
+
+
+process plotAdmixtures{
+    tag "plot_admix"
+    label 'medium'
+    publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
+
+    input:
+    tuple val(k), path(infile)
+    
+    output:
+    path "*.pdf" 
+
+    script:
+    """
+    AdmixturePlot ${infile} ${k}
     """
 }

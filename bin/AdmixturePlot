@@ -17,7 +17,7 @@ toplot[,'V1'] = NULL
 colnames(toplot)[1] = 'POP'
 colnames(toplot)[2] = 'IND'
 toplot[,'POP'] = factor(toplot[,'POP'], levels = unique(sort(toplot[,'POP'])))
-toplot = toplot[order(toplot\$POP),]
+toplot = toplot[order(toplot$POP),]
 cols<-c("red","lightgreen","darkblue","127","hotpink3","orange","lightblue","#C12869","lightcoral","seagreen","#CCFB5D","#E9CFEC","#C3FDB8","#9E8335","#E8A317","purple","yellowgreen","darkgreen","lightgrey","#7F5217","#5819B3","#5CAFA9","#944B21","#FBB917","#6A287E","#7D0552","#C38EC7","#C9C299","blue","#6C4403","#738017","#43C6DB","#EDE275","darkgray","#C34A2C","black","pink","#736AFF","#B93B8F")
 toplot2 = toplot
 colnames(toplot2)[3:ncol(toplot2)] = seq(1:k)
