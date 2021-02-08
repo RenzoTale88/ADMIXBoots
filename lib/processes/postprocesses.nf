@@ -38,7 +38,7 @@ process getCVerrors{
     publishDir "${params.outfolder}/CV", mode: 'copy', overwrite: true
 
     input:
-    path logs.collect()
+    path logs
     
     output:
     path "Best_K.txt"
@@ -61,7 +61,7 @@ process getHprimes{
     publishDir "${params.outfolder}/Hpr", mode: 'copy', overwrite: true
 
     input:
-    path hfiles.collect()
+    path hfiles
     
     output:
     path "Hprimes.txt"
@@ -79,7 +79,7 @@ process makePlots{
     publishDir "${params.outfolder}/plots", mode: 'copy', overwrite: true
 
     input:
-    path sortedfiles.collect()
+    path sortedfiles
     path hprimes
     path cvs
     

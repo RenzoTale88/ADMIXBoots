@@ -8,8 +8,8 @@ process getBSlists {
     input:
     //Collect the generated files
     path mypath 
-    each k from 2..params.nK
-    each x from 1..params.bootstrap
+    each x 
+    val k 
 
     output:
     // Save every file with it's index in a new channel
@@ -33,8 +33,8 @@ process admixboost {
 
     input: 
         tuple val(k), val(x), path(bslist)
-        tped
-        tfam
+        path tped
+        path tfam
         
     output: 
         path "logBS.${k}.${x}.out"
