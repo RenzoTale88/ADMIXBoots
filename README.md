@@ -66,5 +66,7 @@ nextflow run RenzoTale88/ADMIXBoots --help
 # References
 Test data were published from ADAPTmap and are now [publicly available](https://datadryad.org/stash/dataset/doi:10.5061/dryad.v8g21pt).
 Chang CC, Chow CC, Tellier LCAM, Vattikuti S, Purcell SM, Lee JJ (2015) Second-generation PLINK: rising to the challenge of larger and richer datasets. [GigaScience, 4](https://doi.org/10.1186/s13742-015-0047-8).
+
 Alexander DH, Lange K "Enhancements to the ADMIXTURE algorithm for individual ancestry estimation." [BMC Bioinformatics 2011](https://doi.org/10.1186/1471-2105-12-246)
+
 Mattias Jakobsson, Noah A. Rosenberg, CLUMPP: a cluster matching and permutation program for dealing with label switching and multimodality in analysis of population structure, [Bioinformatics, Volume 23, Issue 14, 15 July 2007, Pages 1801–1806](http://bioinformatics.oxfordjournals.org/cgi/content/full/23/14/1801)
