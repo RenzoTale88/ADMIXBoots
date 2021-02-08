@@ -32,11 +32,6 @@ ADD ./bin/arrange /usr/local/bin/
 ADD ./bin/BestBootstrappedK /usr/local/bin/
 ADD ./bin/BsTpedTmap /usr/local/bin/
 ADD ./bin/MakeBootstrapLists /usr/local/bin/
-RUN chmod -R 777 /usr/local/bin/AdmixPermute
-RUN chmod -R 777 /usr/local/bin/arrange
-RUN chmod -R 777 /usr/local/bin/BestBootstrappedK
-RUN chmod -R 777 /usr/local/bin/BsTpedTmap
-RUN chmod -R 777 /usr/local/bin/MakeBootstrapLists
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
