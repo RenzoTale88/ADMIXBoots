@@ -10,7 +10,7 @@ output = open(indfile, 'w')
 
 print("\n\nReading individuals data...")
 individuals = [i.strip().replace(' ', '\t').split() for i in individual_file]
-integers = map(str, range(1,len(individuals) + 1))
+integers = list(map(str, range(1,len(individuals) + 1)))
 family_conv = {}
 fid_n = 1
 for i in individuals:
