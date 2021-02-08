@@ -24,7 +24,7 @@ process clumpp{
     done > filelist.txt
     AdmixPermute filelist.txt ${fam} ${k} 
     CLUMPP Clumpp_userdef.param
-    mkdir K${k}
+    if [ ! -e K${k} ]; then mkdir K${k}; fi
     mv Clumpp_userdef.* ./K${k}/
     Qscore_sort K${k}/Clumpp_userdef.outfile K${k}/Clumpp_userdef.conv K${k}/Sorted.${k}.txt
     python -c "import sys; KV=sys.argv[2]; HP=[ line.strip().split()[-1] for line in open(sys.argv[1]) if 'highest value of ' in line ]; print('{}\t{}'.format(KV, HP[0])) " K${k}/Clumpp_userdef.miscfile ${k} > K${k}/Hpr.${k}.txt
