@@ -22,7 +22,7 @@ process clumpp{
     for i in ${qs}; do
         echo \$i
     done > filelist.txt
-    AdmixPermute filelist.txt ${fam} ${k} 
+    AdmixPermute filelist.txt ${fam} ${k} ${params.clumpp_greed}
     CLUMPP Clumpp_userdef.param
     if [ ! -e K${k} ]; then mkdir K${k}; fi
     mv Clumpp_userdef.* ./K${k}/

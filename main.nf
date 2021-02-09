@@ -36,6 +36,7 @@ species             : $params.spp
 boostrap N          : $params.bootstrap
 N of clusters (k)   : $params.nk
 Subset size (n SNPs): $params.subset
+CLUMPP greed level  : $params.clumpp_greed
 output folder       : $params.outfolder
 Prune               : $params.prune
 Pruning parameters  : $params.prune_params
