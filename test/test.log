@@ -1,0 +1,28 @@
+PLINK v1.90b6.16 64-bit (19 Feb 2020)
+Options in effect:
+  --bfile ADAPTmap_genotypeTOP_20160222_full/ADAPTmap_genotypeTOP_20160222_full
+  --chr 25
+  --cow
+  --keep keep.txt
+  --make-bed
+  --out test
+
+Hostname: mvm-ri-m186091
+Working directory: /Users/atalenti/Documents/Programming/Nextflow/ADMIXBoots/test
+Start time: Mon Feb  8 14:16:46 2021
+
+Random number seed: 1612793806
+16384 MB RAM detected; reserving 8192 MB for main workspace.
+855 out of 53347 variants loaded from .bim file.
+4653 cattle (32 males, 158 females, 4463 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to test.nosex .
+--keep: 28 cattle remaining.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 28 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate in remaining samples is 0.985589.
+855 variants and 28 cattle pass filters and QC.
+Note: No phenotypes present.
+--make-bed to test.bed + test.bim + test.fam ... done.
+
+End time: Mon Feb  8 14:16:46 2021
