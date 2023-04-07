@@ -21,7 +21,7 @@ if nsnp == 0:
 # Perform bootstrap.
 for boot in range(0, nboots):
 	boot += 1
-	otped = open("BS_" + str(boot) + '.txt', 'w')
+	otped = open(str(boot) + '.bs.txt', 'w')
 	[otped.write( "{}\n".format(rn.randint(0, totsnp-1)) ) for i in range(0, nsnp)]
 	otped.close()
 print("Bootstrapped lists ready.")
