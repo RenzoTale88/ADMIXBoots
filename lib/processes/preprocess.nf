@@ -15,23 +15,42 @@ process prune {
     path "transposed.tfam" 
     
     script:
+    def karyo = ""
+    if (params.karyo){
+        karyo = "--chr-set ${params.karyo}"
+    } else if (params.spp) {
+        karyo = "--${params.spp}"
+    } else {
+        karyo = ""
+    }
     def infile = ""
     if( params.ftype == 'vcf' ){
-        infile = "--vcf ${params.infile}"
+        def vcf = file(params.infile)
+        infile = "--vcf ${vcf}"
     } else if( params.ftype == 'bcf' ){
-        infile = "--bcf ${params.infile}"
+        def bcf = file(params.infile)
+        infile = "--bcf ${bcf}"
     } else if (params.ftype == 'bed'){
-
+        def bed = file("${params.infile}.bed")
+        def bim = file("${params.infile}.bim")
+        def fam = file("${params.infile}.fam")
+        infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
     } else if (params.ftype == 'ped'){
-
+        def ped = file("${params.infile}.ped")
+        def map = file("${params.infile}.map")
+        infile = "--ped ${ped} --map ${map}"
     } else if (params.ftype == 'tped'){
-
+        def tped = file("${params.infile}.tped")
+        def tfap = file("${params.infile}.tfap")
+        infile = "--tped ${tped} --tfam ${tfam}"
     } else {
         error "Invalid file type: ${params.ftype}"
     }
+    def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
+    def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
     """
-    plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} ${infile} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
-    plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} ${infile} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
     """
 }
 
@@ -45,27 +64,42 @@ process transpose {
     path "transposed.tfam" 
     
     script:
-    if( params.ftype == 'vcf' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --vcf ${params.infile} --recode transpose --out transposed --threads ${task.cpus}
-        """
-    else if( params.ftype == 'bcf' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bcf ${params.infile} --recode transpose --out transposed --threads ${task.cpus}
-        """
-    else if( params.ftype == 'ped' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --file ${params.infile} --recode transpose --out transposed --threads ${task.cpus}
-        """
-    else if( params.ftype == 'bed' )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --bfile ${params.infile} --recode transpose --out transposed --threads ${task.cpus}
-        """
-    else if ( params.ftype == "tped" )
-        """
-        plink --${params.spp} ${params.allowExtrChr} ${params.setHHmiss} --tfile ${params.infile} --recode transpose --out transposed --threads ${task.cpus}        """
-    else
+    def karyo = ""
+    if (params.karyo){
+        karyo = "--chr-set ${params.karyo}"
+    } else if (params.spp) {
+        karyo = "--${params.spp}"
+    } else {
+        karyo = ""
+    }
+    def infile = ""
+    if( params.ftype == 'vcf' ){
+        def vcf = file(params.infile)
+        infile = "--vcf ${vcf}"
+    } else if( params.ftype == 'bcf' ){
+        def bcf = file(params.infile)
+        infile = "--bcf ${bcf}"
+    } else if (params.ftype == 'bed'){
+        def bed = file("${params.infile}.bed")
+        def bim = file("${params.infile}.bim")
+        def fam = file("${params.infile}.fam")
+        infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
+    } else if (params.ftype == 'ped'){
+        def ped = file("${params.infile}.ped")
+        def map = file("${params.infile}.map")
+        infile = "--ped ${ped} --map ${map}"
+    } else if (params.ftype == 'tped'){
+        def tped = file("${params.infile}.tped")
+        def tfap = file("${params.infile}.tfap")
+        infile = "--tped ${tped} --tfam ${tfam}"
+    } else {
         error "Invalid file type: ${params.ftype}"
+    }
+    def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
+    def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
+    """
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --threads ${task.cpus}
+    """
 }
 
 
