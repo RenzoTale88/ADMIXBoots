@@ -8,16 +8,38 @@ process getBSlists {
     input:
     //Collect the generated files
     path mypath 
-    each x 
+    val x 
     val k 
 
     output:
     // Save every file with it's index in a new channel
-    tuple val(k), val(x), path("${mypath}/BS_${x}.txt") 
+    tuple val(k), val(x), path("BS_${x}.txt") 
 
     script:
     """
-    echo ${mypath}
+    cp ${mypath}/BS_${x}.txt ./
+    """
+}
+
+
+process tpedBS {
+    tag "tpedBS"
+    label "small"
+
+    //Collect the generated files
+    input:
+    path tped 
+    path tfam 
+    tuple val(k), path(BS) 
+
+    // Save every file with it's index in a new channel
+    output:
+    tuple val(k), val("${BS.simpleName}"), path("BS_${BS.simpleName}.tped"), path("BS_${BS.simpleName}.tfam") 
+
+    script:
+    """
+    BsTpedTmap ${tped} ${tfam} ${BS} ${BS.simpleName}
+    arrange ${BS.simpleName}
     """
 }
 
@@ -32,9 +54,7 @@ process admixboost {
     label "large"
 
     input: 
-        tuple val(k), val(x), path(bslist)
-        path tped
-        path tfam
+        tuple val(k), val(x), path(tped), path(tfam)
         
     output: 
         path "logBS.${k}.${x}.out"
@@ -42,8 +62,6 @@ process admixboost {
         
     script:
     """
-    BsTpedTmap ${tped} ${tfam} BS_${x}.txt ${x}
-    arrange ${x}
     plink --${params.spp} ${params.allowExtrChr} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
     awk 'BEGIN{OFS="\t"};{print "0",\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && mv tmp.bim BS_${x}.bim
     admixture --cv -j${task.cpus} BS_${x}.bed ${k} | tee logBS.${k}.${x}.out

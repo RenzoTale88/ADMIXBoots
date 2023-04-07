@@ -13,9 +13,10 @@ workflow PREPROCESS {
             tfam = transpose.out[1]
         }
         makeBSlists(tped, tfam)
+        results = makeBSlists.out
 
     emit:
         tped
         tfam
-        makeBSlists.out
+        results
 }

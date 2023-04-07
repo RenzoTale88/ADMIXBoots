@@ -9,7 +9,7 @@
 
 // Show help message
 if (params.help) {
-    include {helpMessage} from './modules/processes/help.nf'
+    include {helpMessage} from './lib/processes/help.nf'
     helpMessage()
     exit 0
 }

@@ -4,13 +4,11 @@ channels:
   - conda-forge
   - defaults
   - r
-  - ipyrad
 dependencies:
-  - admixture
-  - clumpp
-  - plink
-  - R
-  - r-base
+  - admixture=1.3.0
+  - ipyrad::clumpp=1.1.2
+  - plink=1.90b4
+  - r-base>4
   - r-tidyverse
   - r-reshape2
   - r-forcats
