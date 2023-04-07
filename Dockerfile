@@ -5,10 +5,9 @@ LABEL authors="andrea.talenti@ed.ac.uk" \
 
 # Install the updates first
 RUN apt-get update && \
-  apt-get install -y gcc g++ && \
+  apt-get install -y gcc g++ git make zlib1g-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 
 # Install the package as normal:
 COPY environment.yml .
@@ -28,6 +27,11 @@ RUN conda-pack -n admixboots -o /tmp/env.tar && \
 # so now fix up paths:
 RUN /venv/bin/conda-unpack
 
+# Install evalAdmix
+RUN git clone https://github.com/GenisGE/evalAdmix.git && \
+  cd evalAdmix && \
+  make && \
+  cp evalAdmix /venv/bin/
 
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python

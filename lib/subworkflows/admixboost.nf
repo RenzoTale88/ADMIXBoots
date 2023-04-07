@@ -1,5 +1,6 @@
 
 include {admixboost; getBSlists; tpedBS} from "../processes/admixture.nf"
+include {tped2bed; admix} from "../processes/admixture.nf"
 
 workflow ADMIXBOOST {
     take:
@@ -15,13 +16,28 @@ workflow ADMIXBOOST {
           .from( 2..params.nk )
           .combine( lists.flatten() )
         
-        // getBSlists(lists, n_boot, n_k)
-        // tpedBS(tped, tfam, getBSlists.out)
+        // Run tped bootstrapping
         tpedBS(tped, tfam, n_k)
         admixboost( tpedBS.out )
+
+        // Perform full admixture
+        if (params.skip_full){
+            full = Channel.empty() 
+        } else {
+            tped2bed(tped, tfam)
+            Channel
+                .of( 2..params.nk )
+                .combine(tped2bed.out)
+                .set{infams}
+            infams | admix
+            full = admix.out
+        }
+        
 
     emit:
         admixboost.out[0]
         admixboost.out[1]
+        full
+
 
 }

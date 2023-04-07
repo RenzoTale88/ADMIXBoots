@@ -1,5 +1,6 @@
 
 include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../processes/postprocesses"
+include {evalAdmix; plot_evalAdmix} from "../processes/postprocesses"
 
 workflow POSTPROCESS {
     take:
@@ -7,6 +8,7 @@ workflow POSTPROCESS {
         tfam
         admixboostlogs
         admixboostres
+        admixfull
 
     main:
         // Run clumpp
@@ -22,5 +24,11 @@ workflow POSTPROCESS {
         //makePlots(clumpp.out[2], getHprimes.out, getCVerrors.out[1])
         plotAdmixtures(clumpp.out[2])
         plotStats(getHprimes.out, getCVerrors.out[1])
+
+        // Run admixEval
+        if (!params.skip_full){
+            admixfull | evalAdmix | plot_evalAdmix
+        }
+
 }
 

@@ -108,3 +108,36 @@ process plotAdmixtures{
     AdmixturePlot ${infile} ${k}
     """
 }
+
+process evalAdmix {
+    publishDir "${params.outfolder}/admixture/k$k/", mode: 'copy', overwrite: true
+    label 'large'
+
+    input:
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P")
+
+    output:
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path("output.corres.txt")
+
+    script:
+    """
+    evalAdmix -plink input -fname input.P -qname input.Q -P $task.cpus 
+    """
+}
+
+process plot_evalAdmix {
+    publishDir "${params.outfolder}/plots/admixEval/k$k/", mode: 'copy', overwrite: true
+    label 'large'
+
+    input:
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path("output.corres.txt")
+    
+    output:
+    path "evalAdmix.${k}.pdf"
+
+    script:
+    """
+    wget https://raw.githubusercontent.com/GenisGE/evalAdmix/89ba80529be6d96ca6224434bab2fdf26acedd5f/visFuns.R
+    plotEval.R input.fam input.Q output.corres.txt evalAdmix.${k}.pdf
+    """
+}
