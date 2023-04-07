@@ -25,23 +25,23 @@ process prune {
     }
     def infile = ""
     if( params.ftype == 'vcf' ){
-        def vcf = file(params.infile)
+        def vcf = file(params.infile, checkIfExists: true)
         infile = "--vcf ${vcf}"
     } else if( params.ftype == 'bcf' ){
-        def bcf = file(params.infile)
+        def bcf = file(params.infile, checkIfExists: true)
         infile = "--bcf ${bcf}"
     } else if (params.ftype == 'bed'){
-        def bed = file("${params.infile}.bed")
-        def bim = file("${params.infile}.bim")
-        def fam = file("${params.infile}.fam")
+        def bed = file("${params.infile}.bed", checkIfExists: true)
+        def bim = file("${params.infile}.bim", checkIfExists: true)
+        def fam = file("${params.infile}.fam", checkIfExists: true)
         infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
     } else if (params.ftype == 'ped'){
-        def ped = file("${params.infile}.ped")
-        def map = file("${params.infile}.map")
+        def ped = file("${params.infile}.ped", checkIfExists: true)
+        def map = file("${params.infile}.map", checkIfExists: true)
         infile = "--ped ${ped} --map ${map}"
     } else if (params.ftype == 'tped'){
-        def tped = file("${params.infile}.tped")
-        def tfap = file("${params.infile}.tfap")
+        def tped = file("${params.infile}.tped", checkIfExists: true)
+        def tfap = file("${params.infile}.tfap", checkIfExists: true)
         infile = "--tped ${tped} --tfam ${tfam}"
     } else {
         error "Invalid file type: ${params.ftype}"
@@ -74,29 +74,26 @@ process transpose {
     }
     def infile = ""
     if( params.ftype == 'vcf' ){
-        def vcf = file(params.infile)
+        def vcf = file(params.infile, checkIfExists: true)
         infile = "--vcf ${vcf}"
     } else if( params.ftype == 'bcf' ){
-        def bcf = file(params.infile)
+        def bcf = file(params.infile, checkIfExists: true)
         infile = "--bcf ${bcf}"
     } else if (params.ftype == 'bed'){
-        def bed = file("${params.infile}.bed")
-        def bim = file("${params.infile}.bim")
-        def fam = file("${params.infile}.fam")
+        def bed = file("${params.infile}.bed", checkIfExists: true)
+        def bim = file("${params.infile}.bim", checkIfExists: true)
+        def fam = file("${params.infile}.fam", checkIfExists: true)
         infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
     } else if (params.ftype == 'ped'){
-        def ped = file("${params.infile}.ped")
-        def map = file("${params.infile}.map")
+        def ped = file("${params.infile}.ped", checkIfExists: true)
+        def map = file("${params.infile}.map", checkIfExists: true)
         infile = "--ped ${ped} --map ${map}"
-    } else if (params.ftype == 'tped'){
-        def tped = file("${params.infile}.tped")
-        def tfap = file("${params.infile}.tfap")
-        infile = "--tped ${tped} --tfam ${tfam}"
     } else {
         error "Invalid file type: ${params.ftype}"
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
+    if (params.ftype != 'tped')
     """
     plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --threads ${task.cpus}
     """

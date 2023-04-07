@@ -8,9 +8,14 @@ workflow PREPROCESS {
             tped = prune.out[0]
             tfam = prune.out[1]
         } else {
-            transpose()
-            tped = transpose.out[0]
-            tfam = transpose.out[1]
+            if (params.ftype != "tped"){
+                transpose()
+                tped = transpose.out[0]
+                tfam = transpose.out[1]
+            } else {
+                tped = file("${params.infile}.tped", checkIfExists: true)
+                tfam = file("${params.infile}.tfam", checkIfExists: true)
+            }
         }
         makeBSlists(tped, tfam)
         results = makeBSlists.out
