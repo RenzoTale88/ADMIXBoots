@@ -138,6 +138,6 @@ process plot_evalAdmix {
     script:
     """
     wget https://raw.githubusercontent.com/GenisGE/evalAdmix/89ba80529be6d96ca6224434bab2fdf26acedd5f/visFuns.R
-    plotEval.R input.fam input.Q output.corres.txt evalAdmix.${k}.pdf
+    plotEval input.fam input.Q output.corres.txt evalAdmix.${k}.pdf
     """
 }
