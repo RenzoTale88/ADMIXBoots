@@ -21,8 +21,20 @@ cvp = CV %>%
     labs(title = "CV error - 100 bootstrap", x = "K", y = "CV error distribution")
 ggsave("CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
+# Plot Iterations errors
+iters = read.table(args[2], h=F, sep = ' ') %>% 
+    select(K = V3, Iterations = V4)
+iters[,'K'] = parse_number(iters[,'K'])
+iters[,'K'] = factor(iters[,'K'], levels = sort(unique(iters[,'K'])))
+
+cvp = iters %>% 
+    ggplot(aes(x = K, y=Iterations)) +
+    geom_boxplot() + 
+    labs(title = "Iterations to converge - 100 bootstrap", x = "K", y = "Iterations")
+ggsave("Iterations.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
+
 # Plot H prime values
-hpr = read.table(args[2], h=F) %>% 
+hpr = read.table(args[3], h=F) %>% 
     select(K = V1, H = V2)
 hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
 

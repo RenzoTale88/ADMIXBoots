@@ -20,15 +20,13 @@ workflow POSTPROCESS {
         // Collect all CV errors
         getCVerrors(admixboostlogs.collect() )
 
-        // Make final plots
-        //makePlots(clumpp.out[2], getHprimes.out, getCVerrors.out[1])
-        plotAdmixtures(clumpp.out[2])
-        plotStats(getHprimes.out, getCVerrors.out[1])
-
         // Run admixEval
         if (!params.skip_full){
             admixfull | evalAdmix | plot_evalAdmix
         }
 
+        // Make final plots
+        plotAdmixtures(clumpp.out[2])
+        plotStats(getHprimes.out, getCVerrors.out[1], getCVerrors.out[2])
 }
 
