@@ -43,15 +43,16 @@ process getCVerrors{
     output:
     path "Best_K.txt"
     path "All_CVs.txt"
+    path "All_Iters.txt"
 
-    script:
-    """
-    for i in ${logs}; do
+    shell:
+    '''
+    for i in !{logs}; do
         grep -w CV \$i >> All_CVs.txt
+        grep -w 'Converged in' \$i >> All_Iters.txt
     done
     BestBootstrappedK All_CVs.txt > Best_K.txt
-    """
-
+    '''
 }
 
 
@@ -81,13 +82,14 @@ process plotStats{
     input:
     path hprimes
     path cvs
+    path iters
     
     output:
     path "*.pdf" 
 
     script:
     """
-    StatsPlots ${cvs} ${hprimes}
+    StatsPlots ${cvs} ${iters} ${hprimes}
     """
 }
 
