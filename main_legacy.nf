@@ -86,7 +86,7 @@ process makeBSlists {
     nvar=`python -c "import sys; nrows=sum([1 for line in open(sys.argv[1])]); sys.stdout.write(str(nrows)) if nrows<int(sys.argv[2]) else sys.stdout.write(sys.argv[2])" ${tped} ${params.subset} `
     MakeBootstrapLists ${tped} ${params.bootstrap} \$nvar
     if [ ! -e LISTS ]; then mkdir LISTS; fi
-    mv BS_*.txt ./LISTS
+    mv *.bs.txt ./LISTS
     """
 }
 
@@ -105,7 +105,7 @@ process getBSlists {
 
     output:
     // Save every file with it's index in a new channel
-    tuple k, x, "${mypath}/BS_${x}.txt" into bootstrapLists
+    tuple k, x, "${mypath}/${x}.bs.txt" into bootstrapLists
 
     script:
     """
@@ -128,7 +128,7 @@ process admixboost {
     clusterOptions "-P roslin_ctlgh -l h_vmem=${task.memory.toString().replaceAll(/[\sB]/,'')}"
 
     input: 
-        tuple k, x, "BS_${x}.txt" from bootstrapLists
+        tuple k, x, "${x}.bs.txt" from bootstrapLists
         tuple tped, tfam from transposed_ch
  
     output: 
