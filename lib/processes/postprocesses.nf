@@ -48,8 +48,8 @@ process getCVerrors{
     shell:
     '''
     for i in !{logs}; do
-        grep -w CV \$i >> All_CVs.txt
-        grep -w 'Converged in' \$i >> All_Iters.txt
+        grep -w CV $i >> All_CVs.txt
+        grep -w 'Converged in' $i | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
     done
     BestBootstrappedK All_CVs.txt > Best_K.txt
     '''
@@ -135,11 +135,11 @@ process plot_evalAdmix {
     tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path("output.corres.txt")
     
     output:
-    path "evalAdmix.${k}.pdf"
+    path "*.${k}.pdf"
 
     script:
     """
     wget https://raw.githubusercontent.com/GenisGE/evalAdmix/89ba80529be6d96ca6224434bab2fdf26acedd5f/visFuns.R
-    plotEval input.fam input.Q output.corres.txt evalAdmix.${k}.pdf
+    plotEval input.fam input.Q output.corres.txt evalAdmix.${k}.pdf Admix.${k}.pdf
     """
 }
