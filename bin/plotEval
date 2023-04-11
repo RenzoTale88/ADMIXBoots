@@ -12,13 +12,14 @@ palette(c("#A6CEE3","#1F78B4","#B2DF8A","#33A02C","#FB9A99","#E31A1C","#FDBF6F",
 ord<-orderInds(pop = as.vector(pop[,2]), q = q)
 
 #make barplot
-plotAdmix(q,ord=ord,pop=pop[,2])
-
+pdf(args[5], height = 9, width = 18)
+plotAdmix(orderK(q),ord=ord,pop=pop[,2])
+dev.off()
 
 
 r<-as.matrix(read.table(args[3]))
 
 # Plot correlation of residuals
 pdf(args[4], height = 18, width = 18)
-plotCorRes(cor_mat = r, pop = as.vector(pop[,2]), ord=ord, title="Evaluation of 1000G admixture proportions with K=3", max_z=0.1, min_z=-0.1)
+plotCorRes(cor_mat = r, pop = as.vector(pop[,2]), ord=ord, title=paste("Evaluation of 1000G admixture proportions with K=", ncol(q)), max_z=0.1, min_z=-0.1)
 dev.off()

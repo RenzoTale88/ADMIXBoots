@@ -23,7 +23,9 @@ ggsave("CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
 # Plot Iterations errors
 iters = read.table(args[2], h=F, sep = ' ') %>% 
-    select(K = V3, Iterations = V4)
+    select(FN = V1, Iterations = V4) %>% 
+    separate(FN, c('root', 'K', 'IT', 'OUT')) %>%
+    select(K, Iterations)
 iters[,'K'] = parse_number(iters[,'K'])
 iters[,'K'] = factor(iters[,'K'], levels = sort(unique(iters[,'K'])))
 
