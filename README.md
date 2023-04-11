@@ -37,6 +37,7 @@ This script will download a series of software and save them in the ./bin folder
     4. forcats
     5. ggthemes
     6. patchwork
+ 6. [evalAdmix](http://www.popgen.dk/software/index.php/EvalAdmix)
 
 Remember to add the ```bin``` folder to your path with the command:
 ```
