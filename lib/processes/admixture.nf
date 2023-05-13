@@ -121,7 +121,7 @@ process admix {
         path('input.fam'), 
         path("input.${k}.Q"), 
         path("input.${k}.P"), 
-        path('logBS.${k}.out')
+        path("logBS.${k}.out")
     
     script:
     """

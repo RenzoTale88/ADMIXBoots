@@ -23,10 +23,7 @@ workflow POSTPROCESS {
         // Run admixEval
         if (!params.skip_full){
             admixfull | evalAdmix | plot_evalAdmix
-            evalAdmix.map{
-                it ->
-                it[1..]
-            }.groupTuple(by: [0,1,2]) | plot_full_stats
+            evalAdmix.out.map{it -> it[1..-1]}.groupTuple(by: [0,1,2]) | plot_full_stats
         }
 
         // Make final plots

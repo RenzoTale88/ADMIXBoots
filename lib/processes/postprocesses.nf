@@ -156,7 +156,9 @@ process plot_full_stats {
     tuple path('input.bed'), path('input.bim'), path('input.fam'), path("Qs/*"), path("./Ps/*"), path('LOGS/*'), path("./outcorrs/")
     
     output:
-    path "*.${k}.pdf"
+    path "*.pdf"
+    path "All_CVs.txt"
+    path "All_Iters.txt"
 
     shell:
     '''
