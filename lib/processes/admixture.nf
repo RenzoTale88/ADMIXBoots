@@ -115,8 +115,14 @@ process admix {
     tuple val(k), path('input.bed'), path('tmp.bim'), path('input.fam')
 
     output:
-    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.${k}.Q"), path("input.${k}.P")
-
+    tuple val(k), 
+        path('input.bed'), 
+        path('input.bim'), 
+        path('input.fam'), 
+        path("input.${k}.Q"), 
+        path("input.${k}.P"), 
+        path('logBS.${k}.out')
+    
     script:
     """
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' tmp.bim > input.bim

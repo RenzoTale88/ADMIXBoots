@@ -36,14 +36,16 @@ cvp = iters %>%
 ggsave("Iterations.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
 # Plot H prime values
-hpr = read.table(args[3], h=F) %>% 
-    select(K = V1, H = V2)
-hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
+if (length(args) > 2){
+    hpr = read.table(args[3], h=F) %>% 
+        select(K = V1, H = V2)
+    hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
 
-hp = hpr %>% 
-    ggplot(aes(x = K, y=H)) +
-    geom_point() + 
-    labs(title = "H' - 100 bootstrap", x = "K", y = "H'")
-ggsave("Hprimes.pdf", plot = hp, device = "pdf", width = 12, height = 8)
+    hp = hpr %>% 
+        ggplot(aes(x = K, y=H)) +
+        geom_point() + 
+        labs(title = "H' - 100 bootstrap", x = "K", y = "H'")
+    ggsave("Hprimes.pdf", plot = hp, device = "pdf", width = 12, height = 8)
+}
 
 

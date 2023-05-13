@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec 15 12:09:59 2015
+
+@author: andrea
+"""
+import sys
+import numpy as np
+
+# File di input
+infile=sys.argv[1]
+
+# Array e liste per contenere i dati
+animals=[]
+values=[]
+anim_info={}
+
+c=0
+for line in open(infile):
+	line = line.replace('\t',' ')
+	fid,iid,val=line.strip().split(' ',2)
+	c+=1
+	animals.append([fid,iid])
+	val=val.split()
+	val=list(map(float,val))
+	values.append(val)
+	anim_info[iid]=(c, val)
+breeds=sorted(set([i[0] for i in animals]))
+ks=[i for i in range(0,len(values[0]))]
+print( "K value is: ",ks[-1] + 1)
+
+out=open('Sorted.txt','w')
+for br in breeds:
+	print( 'Sorting %s.' % br)
+	branim=[i[1] for i in animals if i[0]==br]
+	val=[values[k] for k in range(len(values)) if animals[k][0]==br]
+	means=[np.mean([val[k][i] for k in range(len(val))]) for i in range(len(ks))]
+	mer=list(zip(means,ks))
+	mer.sort(reverse=True)
+	nK = len(mer[0])
+	v1=mer[0][1]-1
+	val1=[val[x][v1] for x in range(len(val))]
+	v2=mer[1][1]-1
+	val2=[val[x][v2] for x in range(len(val))]
+	if nK > 2:
+		v3=mer[2][1]-1
+		val3=[val[x][v3] for x in range(len(val))]
+		top=list(zip(val1,val2,val3,branim))
+	if nK > 3:
+		v4=mer[3][1]-1
+		val4=[val[x][v4] for x in range(len(val))]
+		top=list(zip(val1,val2,val3,val4,branim))
+	else:
+		top=list(zip(val1,val2,branim))
+	
+	top.sort(reverse=True)
+	for i in top:
+		out.write('%i %s %s %s\n' % (anim_info[i[2]][0],br,i[2],' '.join(list(map(str,anim_info[i[2]][1])))))
+out.close()
+print( 'Done.')

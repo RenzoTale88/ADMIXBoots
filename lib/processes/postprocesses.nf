@@ -116,10 +116,10 @@ process evalAdmix {
     label 'large'
 
     input:
-    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P")
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path(log)
 
     output:
-    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path("output.corres.txt")
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path(log), path("output.corres.txt")
 
     script:
     """
@@ -132,7 +132,7 @@ process plot_evalAdmix {
     label 'large'
 
     input:
-    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path("output.corres.txt")
+    tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path(log), path("output.corres.txt")
     
     output:
     path "*.${k}.pdf"
@@ -141,5 +141,30 @@ process plot_evalAdmix {
     """
     wget https://raw.githubusercontent.com/GenisGE/evalAdmix/89ba80529be6d96ca6224434bab2fdf26acedd5f/visFuns.R
     plotEval input.fam input.Q output.corres.txt evalAdmix.${k}.pdf Admix.${k}.pdf
+    cut -f 1,2 -d ' ' input.fam > samples.txt
+    paste -d ' ' samples.txt input.Q > input.usort.Q
+    Qscore_sorting input.usort.Q > input.sort.Q
+    AdmixturePlot input.sort.Q ${k}
     """
+}
+
+process plot_full_stats {
+    publishDir "${params.outfolder}/plots/admixEval/", mode: 'copy', overwrite: true
+    label 'large'
+
+    input:
+    tuple path('input.bed'), path('input.bim'), path('input.fam'), path("Qs/*"), path("./Ps/*"), path('LOGS/*'), path("./outcorrs/")
+    
+    output:
+    path "*.${k}.pdf"
+
+    shell:
+    '''
+    for i in {2..!{params.nk}}; do
+        grep -w CV LOGS/logBS.${i}.out >> All_CVs.txt
+        grep -w 'Converged in' $i | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+    done
+    StatsPlots All_CVs.txt All_Iters.txt
+    '''
+    
 }
