@@ -2,7 +2,8 @@
 ## Nextflow Bootstrapped ADMIXTURE workflow
 
 ## Introduction
-*ADMIXBoots* is a nextflow implementation of a bootstrapped admixture pipeline. 
+*ADMIXBoots* is a nextflow implementation of a bootstrapped admixture pipeline.
+**Update 04/2023**: in addition of running the bootstrapped admixture analysis, the workflow now runs also a post-pruning, full-dataset admixture run, generates the plots and statistics for the full-dataset analyses, and run evalAdmix on the full dataset analyses, providing a more comprehensive picture of the dataset in an highly automated way.
 
 ## Dependencies
 ### Nextflow
