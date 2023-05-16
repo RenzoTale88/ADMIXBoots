@@ -127,7 +127,7 @@ process evalAdmix {
     """
 }
 
-process plot_evalAdmix {
+process plot_full_admix {
     publishDir "${params.outfolder}/plots/admixEval/k$k/", mode: 'copy', overwrite: true
     label 'large'
 
@@ -139,8 +139,6 @@ process plot_evalAdmix {
 
     script:
     """
-    wget https://raw.githubusercontent.com/GenisGE/evalAdmix/89ba80529be6d96ca6224434bab2fdf26acedd5f/visFuns.R
-    plotEval input.fam input.Q output.corres.txt evalAdmix.${k}.pdf Admix.${k}.pdf
     cut -f 1,2 -d ' ' input.fam > samples.txt
     paste -d ' ' samples.txt input.Q > input.usort.Q
     Qscore_sorting input.usort.Q > input.sort.Q

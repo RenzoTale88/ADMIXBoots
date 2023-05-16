@@ -1,6 +1,6 @@
 
 include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../processes/postprocesses"
-include {evalAdmix; plot_evalAdmix; plot_full_stats} from "../processes/postprocesses"
+include {evalAdmix; plot_full_admix; plot_full_stats} from "../processes/postprocesses"
 
 workflow POSTPROCESS {
     take:
@@ -22,7 +22,7 @@ workflow POSTPROCESS {
 
         // Run admixEval
         if (!params.skip_full){
-            admixfull | evalAdmix | plot_evalAdmix
+            admixfull | evalAdmix | plot_full_admix
             evalAdmix.out.map{it -> it[1..-1]}.groupTuple(by: [0,1,2]) | plot_full_stats
         }
 
