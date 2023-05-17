@@ -135,13 +135,14 @@ process plot_full_admix {
     tuple val(k), path('input.bed'), path('input.bim'), path('input.fam'), path("input.Q"), path("input.P"), path(log), path("output.corres.txt")
     
     output:
-    path "*.${k}.pdf"
+    path "*_${k}.pdf"
 
     script:
     """
     cut -f 1,2 -d ' ' input.fam > samples.txt
     paste -d ' ' samples.txt input.Q > input.usort.Q
-    Qscore_sorting input.usort.Q > input.sort.Q
+    Qscore_sorting input.usort.Q 
+    mv Sorted.txt input.sort.Q
     AdmixturePlot input.sort.Q ${k}
     """
 }
@@ -151,7 +152,7 @@ process plot_full_stats {
     label 'large'
 
     input:
-    tuple path('input.bed'), path('input.bim'), path('input.fam'), path("Qs/*"), path("./Ps/*"), path('LOGS/*'), path("./outcorrs/")
+    path 'LOGS/*'
     
     output:
     path "*.pdf"
@@ -162,7 +163,7 @@ process plot_full_stats {
     '''
     for i in {2..!{params.nk}}; do
         grep -w CV LOGS/logBS.${i}.out >> All_CVs.txt
-        grep -w 'Converged in' $i | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+        grep -w 'Converged in' LOGS/logBS.${i}.out | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
     done
     StatsPlots All_CVs.txt All_Iters.txt
     '''
