@@ -14,14 +14,34 @@ We provide few custom configurations for HPC systems, so these might need to be 
 ### Profiles
 *ADMIXBoots* comes with a series of pre-defined profiles:
  - standard: this profile runs all dependencies in docker and other basic presets to facilitate the use
- - local: runs using local exe instead of containerized/conda dependencies (see manual installation for further details)
  - docker: use docker to run the workflow 
  - singularity: use singularity to run the container
- - conda: runs the dependencies within anaconda
+ - local: runs using local exe instead of containerized/conda dependencies (see manual installation for further details)
  - uge: runs using UGE scheduling system
  - sge: runs using SGE scheduling system
 A docker image is available with all the dependencies at tale88/nf-roh. This docker ships all necessary dependencies to run nf-roh. 
 This is the recommended mode of usage of the software, since all the dependencies come shipped in the container.
+
+### Docker installation
+The recommended way to run the workflow, together with `singularity`. To run the workflow using `docker`, first install the desktop application from [here](https://www.docker.com/products/docker-desktop/). The clone the repository and create the docker image as follow:
+```
+git clone https://github.com/RenzoTale88/ADMIXBoots
+cd ADMIXBoots
+docker build -t admixboots:latest .
+```
+If you need the singularity container, simply convert it using:
+```
+docker save admixboots:latest > admixboots.tar && \
+   singularity build admixboots.sif docker-archive://${PWD}/admixboots.tar
+```
+Then, you can run the workflow using the appropriate profile and pointing to the correct image:
+```
+nextflow run RenzoTale88/ADMIXBoots [OPTIONS] -profile docker -with-docker admixboots:latest
+```
+or
+```
+nextflow run RenzoTale88/ADMIXBoots [OPTIONS] -profile singularity -with-singularity ${PWD}/admixboots.sif
+```
 
 ### Manual installation
 In the case the system doesn't support docker/singularity, it is possible to download them all through the script install.sh.
