@@ -46,10 +46,10 @@ nextflow run RenzoTale88/ADMIXBoots [OPTIONS] -profile singularity -with-singula
 ### Manual installation
 In the case the system doesn't support docker/singularity, it is possible to download them all through the script install.sh.
 This script will download a series of software and save them in the ./bin folder, including:
- 1. [plink](https://www.cog-genomics.org/plink) with packages:
+ 1. [plink](https://www.cog-genomics.org/plink)
  2. [admixture](https://dalexander.github.io/admixture/download.html)
  3. [clumpp](https://rosenberglab.stanford.edu/clumpp.html)
- 4. [python3](https://www.python.org/downloads/)
+ 4. [python3](https://www.python.org/downloads/), with packages:
     1. numpy
     2. pandas
  5. [R](https://www.r-project.org/) with packages:
