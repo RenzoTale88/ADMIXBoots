@@ -1,6 +1,6 @@
 
-include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../processes/postprocesses"
-include {evalAdmix; plot_full_admix; plot_full_stats} from "../processes/postprocesses"
+include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../../processes/postprocesses"
+include {evalAdmix; plot_full_admix; plot_full_stats} from "../../processes/postprocesses"
 
 workflow POSTPROCESS {
     take:

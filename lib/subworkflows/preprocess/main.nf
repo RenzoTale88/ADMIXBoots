@@ -1,5 +1,5 @@
 
-include {transpose; prune; makeBSlists} from "../processes/preprocess"
+include {transpose; prune; makeBSlists} from "../../processes/preprocess"
 
 workflow PREPROCESS {
     main:

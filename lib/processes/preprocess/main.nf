@@ -41,7 +41,7 @@ process prune {
         infile = "--ped ${ped} --map ${map}"
     } else if (params.ftype == 'tped'){
         def tped = file("${params.infile}.tped", checkIfExists: true)
-        def tfap = file("${params.infile}.tfap", checkIfExists: true)
+        def tfam = file("${params.infile}.tfap", checkIfExists: true)
         infile = "--tped ${tped} --tfam ${tfam}"
     } else {
         error "Invalid file type: ${params.ftype}"

@@ -2,7 +2,6 @@ name: admixboots
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - admixture=1.3.0
   - ipyrad::clumpp=1.1.2

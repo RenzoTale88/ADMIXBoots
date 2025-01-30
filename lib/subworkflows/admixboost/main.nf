@@ -1,6 +1,6 @@
 
-include {admixboost; getBSlists; tpedBS} from "../processes/admixture.nf"
-include {tped2bed; admix} from "../processes/admixture.nf"
+include {admixboost; getBSlists; tpedBS} from "../../processes/admixture"
+include {tped2bed; admix} from "../../processes/admixture"
 
 workflow ADMIXBOOST {
     take:
@@ -35,9 +35,9 @@ workflow ADMIXBOOST {
         
 
     emit:
-        admixboost.out[0]
-        admixboost.out[1]
-        full
+        logs = admixboost.out[0]
+        qps = admixboost.out[1]
+        full = full
 
 
 }

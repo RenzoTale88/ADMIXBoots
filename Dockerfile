@@ -1,7 +1,7 @@
-FROM continuumio/miniconda3 AS build
+FROM condaforge/miniforge3:24.7.1-2 AS build
 
 LABEL authors="andrea.talenti@ed.ac.uk" \
-      description="Docker image containing base requirements for ADMIXBoots"
+      description="Docker image containing base requirements for ADMIXBoots pipelines"
 
 # Install the updates first
 RUN apt-get update && \
@@ -49,5 +49,5 @@ COPY --from=build /venv /venv
 
 # When image is run, run the code with the environment
 # activated:
-ENV PATH /venv/bin/:$PATH
+ENV PATH=/venv/bin/:$PATH
 SHELL ["/bin/bash", "-c"]
