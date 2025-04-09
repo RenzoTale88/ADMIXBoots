@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 include { PREPROCESS } from './lib/subworkflows/preprocess'
 include {ADMIXBOOST} from './lib/subworkflows/admixboost'
 include {POSTPROCESS} from './lib/subworkflows/postprocess'
-include {helpMessage} from './lib/processes/help'
+include {helpMessage} from './lib/subworkflows/help'
 
 workflow {
     /*
@@ -34,7 +34,7 @@ workflow {
 ================================================================
 '''
 log.info """\
-Nextflow ADMIXBoots v 2.0
+Nextflow ADMIXBoots v ${workflow.version}
 =========================================
 input name          : $params.infile
 file type           : $params.ftype

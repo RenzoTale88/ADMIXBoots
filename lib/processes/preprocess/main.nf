@@ -10,6 +10,10 @@ process prune {
     label "large"
     tag "prune"
 
+    input:
+    tuple val(mode),
+        path(inputs)
+
     output:
     path "transposed.tped"  
     path "transposed.tfam" 
@@ -24,33 +28,23 @@ process prune {
         karyo = ""
     }
     def infile = ""
-    if( params.ftype == 'vcf' ){
-        def vcf = file(params.infile, checkIfExists: true)
-        infile = "--vcf ${vcf}"
-    } else if( params.ftype == 'bcf' ){
-        def bcf = file(params.infile, checkIfExists: true)
-        infile = "--bcf ${bcf}"
-    } else if (params.ftype == 'bed'){
-        def bed = file("${params.infile}.bed", checkIfExists: true)
-        def bim = file("${params.infile}.bim", checkIfExists: true)
-        def fam = file("${params.infile}.fam", checkIfExists: true)
-        infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
-    } else if (params.ftype == 'ped'){
-        def ped = file("${params.infile}.ped", checkIfExists: true)
-        def map = file("${params.infile}.map", checkIfExists: true)
-        infile = "--ped ${ped} --map ${map}"
-    } else if (params.ftype == 'tped'){
-        def tped = file("${params.infile}.tped", checkIfExists: true)
-        def tfam = file("${params.infile}.tfap", checkIfExists: true)
-        infile = "--tped ${tped} --tfam ${tfam}"
+    if( mode == 'vcf' || mode == 'bcf'){
+        infile = "--${mode} ${inputs[0]}"
+    } else if (mode == 'bed'){
+        infile = "--bed ${inputs[0]} --bim ${inputs[1]} --fam ${inputs[2]}"
+    } else if (mode == 'ped'){
+        infile = "--ped ${inputs[0]} --map ${inputs[1]}"
+    } else if (mode == 'tped'){
+        infile = "--tped ${inputs[0]} --tfam ${inputs[1]}"
     } else {
         error "Invalid file type: ${params.ftype}"
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
+    def half_calls_cfg = "--vcf-half-call ${params.halfcalls}"
     """
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
     """
 }
 
@@ -59,6 +53,10 @@ process transpose {
     label "large"
     tag "transpose"
 
+    input:
+    tuple val(mode),
+        path(inputs)
+
     output:
     path "transposed.tped"  
     path "transposed.tfam" 
@@ -73,29 +71,23 @@ process transpose {
         karyo = ""
     }
     def infile = ""
-    if( params.ftype == 'vcf' ){
-        def vcf = file(params.infile, checkIfExists: true)
-        infile = "--vcf ${vcf}"
-    } else if( params.ftype == 'bcf' ){
-        def bcf = file(params.infile, checkIfExists: true)
-        infile = "--bcf ${bcf}"
-    } else if (params.ftype == 'bed'){
-        def bed = file("${params.infile}.bed", checkIfExists: true)
-        def bim = file("${params.infile}.bim", checkIfExists: true)
-        def fam = file("${params.infile}.fam", checkIfExists: true)
-        infile = "--bed ${bed} --bim ${bim} --fam ${fam}"
-    } else if (params.ftype == 'ped'){
-        def ped = file("${params.infile}.ped", checkIfExists: true)
-        def map = file("${params.infile}.map", checkIfExists: true)
-        infile = "--ped ${ped} --map ${map}"
+    if( mode == 'vcf' || mode == 'bcf'){
+        infile = "--${mode} ${inputs[0]}"
+    } else if (mode == 'bed'){
+        infile = "--bed ${inputs[0]} --bim ${inputs[1]} --fam ${inputs[2]}"
+    } else if (mode == 'ped'){
+        infile = "--ped ${inputs[0]} --map ${inputs[1]}"
+    } else if (mode == 'tped'){
+        infile = "--tped ${inputs[0]} --tfam ${inputs[1]}"
     } else {
         error "Invalid file type: ${params.ftype}"
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
+    def half_calls_cfg = "--vcf-half-call ${params.halfcalls}"
     if (params.ftype != 'tped')
     """
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --recode transpose --out transposed --threads ${task.cpus}
     """
 }
 
