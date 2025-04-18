@@ -7,7 +7,7 @@
  * Step 1. Prune and transpose input data 
  */
 process prune {
-    label "large"
+    label "vlarge"
     tag "prune"
 
     input:

@@ -75,8 +75,9 @@ process admixboost {
     plink ${karyo} ${extrachr} ${sethhmis} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && \\
         mv tmp.bim BS_${x}.bim
-    admixture --cv -j${task.cpus} BS_${x}.bed ${k} | tee logBS.${k}.${x}.out
-    rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped
+    admixture --cv -j${task.cpus} BS_${x}.bed ${k} | \
+        tee logBS.${k}.${x}.out && \
+        rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped
     """
 }
 

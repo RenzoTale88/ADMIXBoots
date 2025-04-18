@@ -34,7 +34,7 @@ workflow {
 ================================================================
 '''
 log.info """\
-Nextflow ADMIXBoots v ${workflow.version}
+Nextflow ADMIXBoots v ${workflow.manifest.version}
 =========================================
 input name          : $params.infile
 file type           : $params.ftype
