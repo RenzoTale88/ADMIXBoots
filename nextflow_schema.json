@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "ADMIXBoots",
+  "description": "Nextflow bootstrapped ADMIXTURE workflow.",
+  "type": "object",
+  "properties": {
+    "infile": {
+      "type": "string",
+      "description": "Input file path."
+    },
+    "ftype": {
+      "type": "string",
+      "description": "Input file type (e.g. bed or vcf)."
+    },
+    "spp": {
+      "type": ["string", "null"],
+      "description": "Species or dataset label."
+    },
+    "karyo": {
+      "type": ["string", "null"],
+      "description": "Karyotype file path."
+    },
+    "bootstrap": {
+      "type": "integer",
+      "description": "Number of bootstrap replicates.",
+      "minimum": 1
+    },
+    "nk": {
+      "type": "integer",
+      "description": "Number of clusters (K).",
+      "minimum": 2
+    },
+    "clumpp_greed": {
+      "type": "integer",
+      "description": "CLUMPP greed level."
+    },
+    "outfolder": {
+      "type": "string",
+      "description": "Output folder."
+    },
+    "allowExtrChr": {
+      "type": "boolean",
+      "description": "Allow extra chromosomes."
+    },
+    "setHHmiss": {
+      "type": "boolean",
+      "description": "Set heterozygous haplotypes as missing."
+    },
+    "moreplinkopt": {
+      "type": "string",
+      "description": "Additional PLINK options."
+    },
+    "subset": {
+      "type": "integer",
+      "description": "Subset size (number of SNPs).",
+      "minimum": 0
+    },
+    "skip_full": {
+      "type": "boolean",
+      "description": "Skip full-dataset ADMIXTURE run."
+    },
+    "prune": {
+      "type": "boolean",
+      "description": "Enable pruning."
+    },
+    "prune_params": {
+      "type": "string",
+      "description": "PLINK pruning parameters."
+    },
+    "mamba": {
+      "type": "boolean",
+      "description": "Use mamba for conda."
+    },
+    "halfcalls": {
+      "type": "string",
+      "description": "Half-calls handling.",
+      "enum": ["h", "m", "r"]
+    },
+    "tool": {
+      "type": "string",
+      "description": "Ancestry tool implementation.",
+      "enum": ["admixture", "adamitxure"]
+    },
+    "max_memory": {
+      "type": "number",
+      "description": "Maximum memory in GB."
+    },
+    "max_cpus": {
+      "type": "integer",
+      "description": "Maximum CPUs available.",
+      "minimum": 1
+    },
+    "max_time": {
+      "type": "string",
+      "description": "Maximum time allowed (e.g. 240.h)."
+    },
+    "help": {
+      "type": "boolean",
+      "description": "Show help and exit."
+    },
+    "publish_dir_mode": {
+      "type": "string",
+      "description": "Publish mode for outputs."
+    },
+    "extra_cluster_options": {
+      "type": "string",
+      "description": "Extra scheduler options."
+    },
+    "custom_config_version": {
+      "type": "string",
+      "description": "nf-core/configs revision to use."
+    },
+    "enable_conda": {
+      "type": "boolean",
+      "description": "Enable conda environments."
+    },
+    "tracedir": {
+      "type": "string",
+      "description": "Directory for reports."
+    },
+    "custom_config_base": {
+      "type": "string",
+      "description": "Base URL for custom config."
+    }
+  },
+  "required": [
+    "infile",
+    "ftype"
+  ]
+}
