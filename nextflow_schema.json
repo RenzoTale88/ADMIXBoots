@@ -13,11 +13,11 @@
       "description": "Input file type (e.g. bed or vcf)."
     },
     "spp": {
-      "type": ["string", "null"],
+      "type": "string",
       "description": "Species or dataset label."
     },
     "karyo": {
-      "type": ["string", "null"],
+      "type": "string",
       "description": "Karyotype file path."
     },
     "bootstrap": {
