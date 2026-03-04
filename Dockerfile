@@ -1,4 +1,4 @@
-FROM condaforge/miniforge3:24.7.1-2 AS build
+FROM condaforge/miniforge3:26.1.0-0 AS build
 
 LABEL authors="andrea.talenti@ed.ac.uk" \
       description="Docker image containing base requirements for ADMIXBoots pipelines"
@@ -18,8 +18,8 @@ RUN mamba env create -f environment.yml
 RUN mamba install -c conda-forge conda-pack
 
 # Use conda-pack to create a standalone enviornment
-# in /venv:
-RUN conda-pack -n admixboots -o /tmp/env.tar && \
+# in /venv (force packing and ignore missing due to adamixture):
+RUN conda-pack -n admixboots -o /tmp/env.tar --force --ignore-missing-files && \
   mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
   rm /tmp/env.tar
 
@@ -36,7 +36,7 @@ RUN git clone https://github.com/GenisGE/evalAdmix.git && \
 # The runtime-stage image; we can use Debian as the
 # base image since the Conda env also includes Python
 # for us.
-FROM ubuntu:22.04 AS runtime
+FROM ubuntu:24.04 AS runtime
 
 # Install procps in debian to make it compatible with reporting
 RUN apt-get update && \
