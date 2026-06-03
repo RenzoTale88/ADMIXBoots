@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - admixture=1.3.0
-  - ipyrad::clumpp=1.1.2
-  - plink=1.90b4
+  - bioconda::admixture
+  - ipyrad::clumpp
+  - plink
   - conda-forge::r-base>4
   - conda-forge::r-tidyverse
   - conda-forge::r-reshape2
