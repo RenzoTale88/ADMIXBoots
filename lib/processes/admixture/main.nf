@@ -58,7 +58,7 @@ process admixboost {
         
     output: 
         path "logBS.${k}.${x}.out"
-        tuple val(k), val(x), path("BS_${x}.${k}.Q"), path("BS_${x}.${k}.P")
+        tuple val(k), val(x), path("K${k}_run${x}.Q"), path("K${k}_run${x}.P")
         
     script:
     def karyo = ""
@@ -78,6 +78,8 @@ process admixboost {
         mv tmp.bim BS_${x}.bim
     adamixture --k ${k} --data_path BS_${x}.bed --save_dir . --init_file . --name BS_${x} |\
         tee logBS.${k}.${x}.out
+    mv BS_${x}.${k}.Q K${k}_run${x}.Q
+    mv BS_${x}.${k}.P K${k}_run${x}.P
     """
     else
     """
@@ -86,6 +88,8 @@ process admixboost {
         mv tmp.bim BS_${x}.bim
     admixture --cv -j${task.cpus} BS_${x}.bed ${k} | \
         tee logBS.${k}.${x}.out
+    mv BS_${x}.${k}.Q K${k}_run${x}.Q
+    mv BS_${x}.${k}.P K${k}_run${x}.P
     """
     afterScript "rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped"
 }

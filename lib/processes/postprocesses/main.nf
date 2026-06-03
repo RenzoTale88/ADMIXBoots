@@ -31,6 +31,25 @@ process clumpp{
     """
 }
 
+process clumppling{
+    label "vlarge"
+    publishDir "${params.outfolder}/", mode: 'copy', overwrite: true
+
+    input:
+    path "Qs/*" 
+    path fam
+
+    output:
+    path "./CLUMPPLING/"
+
+    // Concatenate Bootstrap Trees
+    script:
+    """
+    awk '{print \$1}' $fam > population_labels.txt
+    clumppling -i Qs/ -o ./CLUMPPLING/ -f admixture --extension .Q --ind_labels population_labels.txt
+    """
+}
+
 
 process getCVerrors{
     tag "CVerr"

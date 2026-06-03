@@ -81,6 +81,11 @@
       "description": "Ancestry tool implementation.",
       "enum": ["admixture", "adamitxure"]
     },
+    "clumper": {
+      "type": "string",
+      "description": "CLUMPP implementation.",
+      "enum": ["clumpp", "clumppling"]
+    },
     "max_memory": {
       "type": "number",
       "description": "Maximum memory in GB."
