@@ -47,6 +47,12 @@ process clumppling{
     """
     awk '{print \$1}' $fam > population_labels.txt
     clumppling -i Qs/ -o ./CLUMPPLING/ -f admixture --extension .Q --ind_labels population_labels.txt
+    # Visualize stuff directly
+    kalignedoscope \\
+        --input CLUMPPLING/modes_aligned \\
+        --alignment_file CLUMPPLING/alignment_acrossK/alignment_acrossK_rep.txt \\
+        --label_file CLUMPPLING/input/ind_labels_grouped.txt \\
+        --processed_membership CLUMPPLING/NEW_PATH_FOR_INTERMEDIATE_FILES
     """
 }
 

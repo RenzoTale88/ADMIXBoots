@@ -5,6 +5,7 @@ channels:
 dependencies:
   - bioconda::admixture
   - ipyrad::clumpp
+  - clumppling
   - plink
   - conda-forge::r-base>4
   - conda-forge::r-tidyverse
@@ -18,3 +19,4 @@ dependencies:
   - pandas
   - pip:
     - adamixture
+    - kalignedoscope
