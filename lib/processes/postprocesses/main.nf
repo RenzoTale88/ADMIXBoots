@@ -193,20 +193,32 @@ process plot_full_stats {
     label 'large'
 
     input:
-    path 'LOGS/*'
+    path logs, stageAs: 'LOGS/*'
     
     output:
     path "*.pdf"
     path "All_CVs.txt"
     path "All_Iters.txt"
 
-    shell:
-    '''
-    for i in {2..!{params.nk}}; do
-        grep -w CV LOGS/logBS.${i}.out >> All_CVs.txt
-        grep -w 'Converged in' LOGS/logBS.${i}.out | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+    script:
+    if (params.clumper == "clumppling")
+    """
+    for i in ${logs}; do
+        grep -w "CV index" \$i >> All_CVs.txt
+        grep -w 'Convergence reached in' \$i | \
+            sed 's/\\.//g' | \
+            sed 's/Convergence reached in iteration/Converged in/g' | \
+            awk -v fid=\$i '{print fid, \$0}'>> All_Iters.txt
     done
-    StatsPlots All_CVs.txt All_Iters.txt
-    '''
+    StatsPlots All_CVs.txt All_Iters.txt ${params.tool} ${params.clumper}
+    """
+    else
+    """
+    for i in ${logs}; do
+        grep -w CV \$i >> All_CVs.txt
+        grep -w 'Converged in' \$i | awk -v fid=\$i '{print fid, \$0}' >> All_Iters.txt
+    done
+    StatsPlots All_CVs.txt All_Iters.txt ${params.tool} ${params.clumper}
+    """
     
 }

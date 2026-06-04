@@ -28,18 +28,20 @@ workflow POSTPROCESS {
             // Collect H'
             hpr_ch = getHprimes(clumped.clumpp_hpr.collect())
 
-            // Run admixEval
-            if (!params.skip_full){
-                admixfull | evalAdmix | plot_full_admix
-                logs = evalAdmix.out.map{it -> it[6]}
-                plot_full_stats(logs.collect())
-            }
-
             // Make final plots
             plotAdmixtures(clumpp.out[2])
         } else {
             error "Invalid clumper specified: ${params.clumper}"
         }
+
+        // Run admixEval
+        if (!params.skip_full){
+            admixfull | evalAdmix | plot_full_admix
+            logs = evalAdmix.out.map{it -> it[6]}
+            plot_full_stats(logs.collect())
+        }
+
+        // Plot output statistics
         plotStats(hpr_ch, getCVerrors.out[1], getCVerrors.out[2])
 }
 

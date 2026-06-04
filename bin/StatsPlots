@@ -9,8 +9,17 @@ suppressPackageStartupMessages(library(forcats, quietly = TRUE))
 suppressPackageStartupMessages(library(ggthemes, quietly = TRUE))
 suppressPackageStartupMessages(library(patchwork, quietly = TRUE))
 
+# Define tools
+if (length(args) == 5){
+    tool = args[4]
+    clumper = args[5]
+} else {
+    tool = args[3]
+    clumper = args[4]
+}
+
 # Plot CV errors
-if (args[4] == 'adamixture'){
+if (tool == 'adamixture'){
     CV = read_table(args[1], col_names = F) %>% 
         rename(K = X1, CV = X5) %>%
         mutate(K = parse_number(K)) %>%
@@ -50,8 +59,8 @@ cvp = iters %>%
 ggsave("Iterations.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
 # Plot H prime values
-if (length(args) > 2){
-    if (args[5] == 'clumppling'){
+if (length(args) > 4){
+    if (clumper == 'clumppling'){
         hpr = read_csv(args[3], col_names = T) %>% 
             mutate(K = parse_number(Mode)) %>%
             mutate(K = factor(K, levels = sort(unique(K)))) %>%

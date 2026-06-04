@@ -78,7 +78,7 @@ process admixboost {
     plink ${karyo} ${extrachr} ${sethhmis} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && \\
         mv tmp.bim BS_${x}.bim
-    adamixture --k ${k} --data_path BS_${x}.bed --save_dir . --cv --name BS_${x} |\
+    adamixture -t ${task.cpus} --cv --k ${k} --data_path BS_${x}.bed --save_dir . --name BS_${x} |\
         tee logBS.${k}.${x}.out
     mv BS_${x}.${k}.Q K${k}_run${x}.Q
     mv BS_${x}.${k}.P K${k}_run${x}.P
@@ -139,6 +139,12 @@ process admix {
         path("logBS.${k}.out")
     
     script:
+    if (params.tool == 'adamixture')
+    """
+    awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' tmp.bim > input.bim
+    adamixture -t ${task.cpus} --cv --k ${k} --data_path input.bed --save_dir . --name input | tee logBS.${k}.out
+    """
+    else
     """
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' tmp.bim > input.bim
     admixture --cv -j${task.cpus} input.bed ${k} | tee logBS.${k}.out
