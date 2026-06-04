@@ -6,9 +6,12 @@ list_cv_error = sys.argv[1]
 
 k_CV = {}
 for i in open(list_cv_error):
-    i = i.strip().split(' ')
-    cverror = float(i[-1])
-    K = int(i[2].replace('(K=', '').replace('):', ''))
+    split_i = i.strip().split(' ')
+    cverror = float(split_i[-1])
+    if '(K=' in i:
+        K = int(split_i[2].replace('(K=', '').replace('):', ''))
+    elif 'K=' in i:
+        K = int(split_i[0].replace('K=', '').replace(':', ''))
     if K not in k_CV:
         k_CV[K] = [cverror]
         continue

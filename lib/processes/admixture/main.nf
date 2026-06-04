@@ -52,13 +52,15 @@ process tpedBS {
 process admixboost { 
     tag "boost.${k}.${x}"
     label "large"
+    afterScript "rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped"
+
 
     input: 
         tuple val(k), val(x), path(tped), path(tfam)
         
     output: 
         path "logBS.${k}.${x}.out"
-        tuple val(k), val(x), path("BS_${x}.${k}.Q"), path("BS_${x}.${k}.P")
+        tuple val(k), val(x), path("K${k}_run${x}.Q"), path("K${k}_run${x}.P")
         
     script:
     def karyo = ""
@@ -71,13 +73,25 @@ process admixboost {
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
+    if (params.tool == 'adamixture')
+    """
+    plink ${karyo} ${extrachr} ${sethhmis} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
+    awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && \\
+        mv tmp.bim BS_${x}.bim
+    adamixture -t ${task.cpus} --cv --k ${k} --data_path BS_${x}.bed --save_dir . --name BS_${x} |\
+        tee logBS.${k}.${x}.out
+    mv BS_${x}.${k}.Q K${k}_run${x}.Q
+    mv BS_${x}.${k}.P K${k}_run${x}.P
+    """
+    else
     """
     plink ${karyo} ${extrachr} ${sethhmis} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && \\
         mv tmp.bim BS_${x}.bim
     admixture --cv -j${task.cpus} BS_${x}.bed ${k} | \
-        tee logBS.${k}.${x}.out && \
-        rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped
+        tee logBS.${k}.${x}.out
+    mv BS_${x}.${k}.Q K${k}_run${x}.Q
+    mv BS_${x}.${k}.P K${k}_run${x}.P
     """
 }
 
@@ -125,6 +139,12 @@ process admix {
         path("logBS.${k}.out")
     
     script:
+    if (params.tool == 'adamixture')
+    """
+    awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' tmp.bim > input.bim
+    adamixture -t ${task.cpus} --cv --k ${k} --data_path input.bed --save_dir . --name input | tee logBS.${k}.out
+    """
+    else
     """
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' tmp.bim > input.bim
     admixture --cv -j${task.cpus} input.bed ${k} | tee logBS.${k}.out

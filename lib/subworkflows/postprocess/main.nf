@@ -1,5 +1,5 @@
 
-include {clumpp; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../../processes/postprocesses"
+include {clumpp; clumppling; getCVerrors; getHprimes; plotAdmixtures; plotStats} from "../../processes/postprocesses"
 include {evalAdmix; plot_full_admix; plot_full_stats} from "../../processes/postprocesses"
 
 workflow POSTPROCESS {
@@ -11,14 +11,28 @@ workflow POSTPROCESS {
         admixfull
 
     main:
-        // Run clumpp
-        grouped_res = admixboostres.groupTuple(by: [0])
-        clumpp(grouped_res, tfam)
-        // Collect H'
-        getHprimes(clumpp.out[3].collect())
-
         // Collect all CV errors
-        getCVerrors(admixboostlogs.collect() )
+        getCVerrors(admixboostlogs.collect())
+        // Run clumpp
+        if (params.clumper == "clumppling"){
+            grouped_Qs = admixboostres | map{_k, _x, _Q, _P -> [_Q]} | flatten | collect
+            clumped = clumppling(grouped_Qs, tfam)
+
+            // Collect H'
+            hpr_ch = clumped.clumpp_hpr.collect()
+
+       } else if (params.clumper == "clumppling"){
+            grouped_res = admixboostres.groupTuple(by: [0])
+            clumped = clumpp(grouped_res, tfam)
+
+            // Collect H'
+            hpr_ch = getHprimes(clumped.clumpp_hpr.collect())
+
+            // Make final plots
+            plotAdmixtures(clumpp.out[2])
+        } else {
+            error "Invalid clumper specified: ${params.clumper}"
+        }
 
         // Run admixEval
         if (!params.skip_full){
@@ -27,8 +41,7 @@ workflow POSTPROCESS {
             plot_full_stats(logs.collect())
         }
 
-        // Make final plots
-        plotAdmixtures(clumpp.out[2])
-        plotStats(getHprimes.out, getCVerrors.out[1], getCVerrors.out[2])
+        // Plot output statistics
+        plotStats(hpr_ch, getCVerrors.out[1], getCVerrors.out[2])
 }
 

@@ -11,10 +11,10 @@ process clumpp{
     path fam
 
     output:
-    path "./K${k}"
-    path "./K${k}/Clumpp_userdef.miscfile" 
-    tuple val(k), path("./K${k}/Sorted.${k}.txt") 
-    path "./K${k}/Hpr.${k}.txt"
+    path "./K${k}", emit: clumpp_out
+    path "./K${k}/Clumpp_userdef.miscfile", emit: clumpp_misc
+    tuple val(k), path("./K${k}/Sorted.${k}.txt"), emit: clumpp_ks
+    path "./K${k}/Hpr.${k}.txt", emit: clumpp_hpr
 
     // Concatenate Bootstrap Trees
     script:
@@ -28,6 +28,35 @@ process clumpp{
     mv Clumpp_userdef.* ./K${k}/
     Qscore_sort K${k}/Clumpp_userdef.outfile K${k}/Clumpp_userdef.conv K${k}/Sorted.${k}.txt
     python -c "import sys; KV=sys.argv[2]; HP=[ line.strip().split()[-1] for line in open(sys.argv[1]) if 'highest value of ' in line ]; print('{}\t{}'.format(KV, HP[0])) " K${k}/Clumpp_userdef.miscfile ${k} > K${k}/Hpr.${k}.txt
+    """
+}
+
+process clumppling{
+    label "vlarge"
+    publishDir "${params.outfolder}/", mode: 'copy', overwrite: true
+
+    input:
+    path "Qs/*" 
+    path fam
+
+    output:
+    path "CLUMPPLING/", emit: clumppling_out
+    path "CLUMPPLING/modes/*_avg.Q", emit: clumpp_ks
+    path "CLUMPPLING/modes/mode_stats.txt", emit: clumpp_hpr
+
+
+    // Combine all the outputs using Clumppling
+    script:
+    """
+    awk '{print \$1}' $fam > population_labels.txt
+    python -m clumppling -i Qs/ -o ./CLUMPPLING/ -f admixture --extension .Q --ind_labels population_labels.txt
+    # Visualize stuff directly
+    python -m kalignedoscope \\
+        --input CLUMPPLING/modes_aligned \\
+        --alignment_file CLUMPPLING/alignment_acrossK/alignment_acrossK_rep.txt \\
+        --label_file population_labels.txt \\
+        --processed_membership CLUMPPLING/INTERMEDIATE_FILES && \\
+        mv visualization.html CLUMPPLING/kalignedoscope_output
     """
 }
 
@@ -45,14 +74,26 @@ process getCVerrors{
     path "All_CVs.txt"
     path "All_Iters.txt"
 
-    shell:
-    '''
-    for i in !{logs}; do
-        grep -w CV $i >> All_CVs.txt
-        grep -w 'Converged in' $i | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+    script:
+    if (params.clumper == "clumppling")
+        """
+        for i in ${logs}; do
+            grep -w "CV index" \$i >> All_CVs.txt
+            grep -w 'Convergence reached in' \$i | \
+                sed 's/\\.//g' | \
+                sed 's/Convergence reached in iteration/Converged in/g' | \
+                awk -v fid=\$i '{print fid, \$0}'>> All_Iters.txt
+        done
+        BestBootstrappedK All_CVs.txt > Best_K.txt
+        """
+    else
+    """
+    for i in ${logs}; do
+        grep -w CV \$i >> All_CVs.txt
+        grep -w 'Converged in' \$i | awk -v fid=\$i '{print fid, \$0}' >> All_Iters.txt
     done
     BestBootstrappedK All_CVs.txt > Best_K.txt
-    '''
+    """
 }
 
 
@@ -89,7 +130,7 @@ process plotStats{
 
     script:
     """
-    StatsPlots ${cvs} ${iters} ${hprimes}
+    StatsPlots ${cvs} ${iters} ${hprimes} ${params.tool} ${params.clumper}
     """
 }
 
@@ -152,20 +193,32 @@ process plot_full_stats {
     label 'large'
 
     input:
-    path 'LOGS/*'
+    path logs, stageAs: 'LOGS/*'
     
     output:
     path "*.pdf"
     path "All_CVs.txt"
     path "All_Iters.txt"
 
-    shell:
-    '''
-    for i in {2..!{params.nk}}; do
-        grep -w CV LOGS/logBS.${i}.out >> All_CVs.txt
-        grep -w 'Converged in' LOGS/logBS.${i}.out | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+    script:
+    if (params.clumper == "clumppling")
+    """
+    for i in ${logs}; do
+        grep -w "CV index" \$i >> All_CVs.txt
+        grep -w 'Convergence reached in' \$i | \
+            sed 's/\\.//g' | \
+            sed 's/Convergence reached in iteration/Converged in/g' | \
+            awk -v fid=\$i '{print fid, \$0}'>> All_Iters.txt
     done
-    StatsPlots All_CVs.txt All_Iters.txt
-    '''
+    StatsPlots All_CVs.txt All_Iters.txt ${params.tool} ${params.clumper}
+    """
+    else
+    """
+    for i in ${logs}; do
+        grep -w CV \$i >> All_CVs.txt
+        grep -w 'Converged in' \$i | awk -v fid=\$i '{print fid, \$0}' >> All_Iters.txt
+    done
+    StatsPlots All_CVs.txt All_Iters.txt ${params.tool} ${params.clumper}
+    """
     
 }

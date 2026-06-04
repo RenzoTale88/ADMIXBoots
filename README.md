@@ -8,7 +8,7 @@
 
 ## Dependencies
 ### Nextflow
-Nextflow needs to be installed and in your path to be able to run the pipeline (see [here](https://www.nextflow.io/)). The workflow comes with a docker container as well as an anaconda environment that can be used to run all the dependencies (see below).
+Nextflow needs to be installed and in your path to be able to run the pipeline (see [here](https://www.nextflow.io/)). The workflow comes with a docker container that can be used to run all the dependencies (see below).
 We provide few custom configurations for HPC systems, so these might need to be changed and expanded depending on the need.
 
 ### Profiles
@@ -16,7 +16,7 @@ We provide few custom configurations for HPC systems, so these might need to be 
  - standard: this profile runs all dependencies in docker and other basic presets to facilitate the use
  - docker: use docker to run the workflow 
  - singularity: use singularity to run the container
- - local: runs using local exe instead of containerized/conda dependencies (see manual installation for further details)
+ - local: runs using local exe instead of containerized dependencies (see manual installation for further details)
  - uge: runs using UGE scheduling system
  - sge: runs using SGE scheduling system
 A docker image is available with all the dependencies at tale88/nf-roh. This docker ships all necessary dependencies to run nf-roh. 
