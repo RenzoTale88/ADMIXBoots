@@ -6,6 +6,7 @@ dependencies:
   - bioconda::admixture
   - ipyrad::clumpp
   - plink
+  - clumppling
   - conda-forge::r-base>4
   - conda-forge::r-tidyverse
   - conda-forge::r-reshape2
@@ -14,3 +15,6 @@ dependencies:
   - conda-forge::r-patchwork
   - conda-forge::r-stringi
   - python <= 3.12
+  - pip:
+    - adamixture
+    - kalignedoscope
