@@ -29,7 +29,7 @@ process prune {
     }
     def infile = ""
     if( mode == 'vcf' || mode == 'bcf'){
-        infile = "--${mode} ${inputs[0]}"
+        infile = "--${mode} ${inputs[0]} --vcf-half-call ${params.halfcalls}"
     } else if (mode == 'bed'){
         infile = "--bed ${inputs[0]} --bim ${inputs[1]} --fam ${inputs[2]}"
     } else if (mode == 'ped'){
@@ -41,10 +41,9 @@ process prune {
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
-    def half_calls_cfg = "--vcf-half-call ${params.halfcalls}"
     """
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --indep-pairwise ${params.prune_params} --out PRUNE ${params.moreplinkopt} --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --extract PRUNE.prune.in --threads ${task.cpus}
     """
 }
 
@@ -72,7 +71,7 @@ process transpose {
     }
     def infile = ""
     if( mode == 'vcf' || mode == 'bcf'){
-        infile = "--${mode} ${inputs[0]}"
+        infile = "--${mode} ${inputs[0]} --vcf-half-call ${params.halfcalls}"
     } else if (mode == 'bed'){
         infile = "--bed ${inputs[0]} --bim ${inputs[1]} --fam ${inputs[2]}"
     } else if (mode == 'ped'){
@@ -84,10 +83,9 @@ process transpose {
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
-    def half_calls_cfg = "--vcf-half-call ${params.halfcalls}"
     if (params.ftype != 'tped')
     """
-    plink ${karyo} ${extrachr} ${sethhmis} ${infile} ${half_calls_cfg} --recode transpose --out transposed --threads ${task.cpus}
+    plink ${karyo} ${extrachr} ${sethhmis} ${infile} --recode transpose --out transposed --threads ${task.cpus}
     """
 }
 

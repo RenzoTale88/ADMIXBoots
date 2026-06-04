@@ -10,24 +10,38 @@ suppressPackageStartupMessages(library(ggthemes, quietly = TRUE))
 suppressPackageStartupMessages(library(patchwork, quietly = TRUE))
 
 # Plot CV errors
-CV = read.table(args[1], h=F, sep = ' ') %>% 
-    select(K = V3, CV = V4)
-CV[,'K'] = parse_number(CV[,'K'])
-CV[,'K'] = factor(CV[,'K'], levels = sort(unique(CV[,'K'])))
+if (args[4] == 'adamixture'){
+    CV = read_table(args[1], col_names = F) %>% 
+        rename(K = X1, CV = X5) %>%
+        mutate(K = parse_number(K)) %>%
+        mutate(K = factor(K, levels = sort(unique(K))))
 
+    # Plot Iterations errors
+    iters = read_table(args[2], col_names = F) %>% 
+        rename(FN = X1, Iterations = X4) %>%
+        separate(FN, c('root', 'K', 'IT', 'OUT')) %>%
+        select(K, Iterations) %>%
+        mutate( K = parse_number(K) ) %>%
+        mutate(K = factor(K, levels = sort(unique(K))))
+} else {
+    CV = read.table(args[1], h=F, sep = ' ') %>% 
+        rename(K = V3, CV = V4)
+    CV[,'K'] = parse_number(CV[,'K'])
+    CV[,'K'] = factor(CV[,'K'], levels = sort(unique(CV[,'K'])))
+
+    # Plot Iterations errors
+    iters = read.table(args[2], h=F, sep = ' ') %>% 
+        rename(FN = V1, Iterations = V4) %>% 
+        separate(FN, c('root', 'K', 'IT', 'OUT')) %>%
+        select(K, Iterations)
+    iters[,'K'] = parse_number(iters[,'K'])
+    iters[,'K'] = factor(iters[,'K'], levels = sort(unique(iters[,'K'])))
+}
 cvp = CV %>% 
     ggplot(aes(x = K, y=CV)) +
     geom_boxplot() + 
     labs(title = "CV error - 100 bootstrap", x = "K", y = "CV error distribution")
 ggsave("CV_errors.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
-
-# Plot Iterations errors
-iters = read.table(args[2], h=F, sep = ' ') %>% 
-    select(FN = V1, Iterations = V4) %>% 
-    separate(FN, c('root', 'K', 'IT', 'OUT')) %>%
-    select(K, Iterations)
-iters[,'K'] = parse_number(iters[,'K'])
-iters[,'K'] = factor(iters[,'K'], levels = sort(unique(iters[,'K'])))
 
 cvp = iters %>% 
     ggplot(aes(x = K, y=Iterations)) +
@@ -37,9 +51,16 @@ ggsave("Iterations.pdf", plot = cvp, device = "pdf", width = 12, height = 8)
 
 # Plot H prime values
 if (length(args) > 2){
-    hpr = read.table(args[3], h=F) %>% 
-        select(K = V1, H = V2)
-    hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
+    if (args[5] == 'clumppling'){
+        hpr = read_csv(args[3], col_names = T) %>% 
+            mutate(K = parse_number(Mode)) %>%
+            mutate(K = factor(K, levels = sort(unique(K)))) %>%
+            rename(H = Performance)
+    } else {
+        hpr = read.table(args[3], h=F) %>% 
+            rename(K = V1, H = V2)
+        hpr[,'K'] = factor(hpr[,'K'], levels = sort(unique(hpr[,'K'])))
+    }
 
     hp = hpr %>% 
         ggplot(aes(x = K, y=H)) +

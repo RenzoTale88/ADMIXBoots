@@ -11,20 +11,22 @@ workflow POSTPROCESS {
         admixfull
 
     main:
+        // Collect all CV errors
+        getCVerrors(admixboostlogs.collect())
         // Run clumpp
         if (params.clumper == "clumppling"){
             grouped_Qs = admixboostres | map{_k, _x, _Q, _P -> [_Q]} | flatten | collect
             clumped = clumppling(grouped_Qs, tfam)
+
+            // Collect H'
+            hpr_ch = clumped.clumpp_hpr.collect()
 
        } else if (params.clumper == "clumppling"){
             grouped_res = admixboostres.groupTuple(by: [0])
             clumped = clumpp(grouped_res, tfam)
 
             // Collect H'
-            getHprimes(clumpp.out[3].collect())
-
-            // Collect all CV errors
-            getCVerrors(admixboostlogs.collect() )
+            hpr_ch = getHprimes(clumped.clumpp_hpr.collect())
 
             // Run admixEval
             if (!params.skip_full){
@@ -35,9 +37,9 @@ workflow POSTPROCESS {
 
             // Make final plots
             plotAdmixtures(clumpp.out[2])
-            plotStats(getHprimes.out, getCVerrors.out[1], getCVerrors.out[2])
         } else {
             error "Invalid clumper specified: ${params.clumper}"
         }
+        plotStats(hpr_ch, getCVerrors.out[1], getCVerrors.out[2])
 }
 

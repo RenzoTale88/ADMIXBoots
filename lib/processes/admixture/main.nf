@@ -52,6 +52,8 @@ process tpedBS {
 process admixboost { 
     tag "boost.${k}.${x}"
     label "large"
+    afterScript "rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped"
+
 
     input: 
         tuple val(k), val(x), path(tped), path(tfam)
@@ -71,12 +73,12 @@ process admixboost {
     }
     def extrachr = params.allowExtrChr ? "--allow-extra-chr" : ""
     def sethhmis = params.setHHmiss ? "--set-hh-missing" : ""
-    if params.tool == 'adamixture'
+    if (params.tool == 'adamixture')
     """
     plink ${karyo} ${extrachr} ${sethhmis} --threads ${task.cpus} --allow-no-sex --nonfounders --tfile BS_${x} --make-bed --out BS_${x}
     awk 'BEGIN{OFS="\\t"; n=0; ctg=""}; NR==1{ctg=\$1; print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1==ctg {print n,\$2,\$3,\$4,\$5,\$6}; NR>1 && \$1!=ctg {ctg=\$1; n+=1; print n,\$2,\$3,\$4,\$5,\$6}' BS_${x}.bim > tmp.bim && \\
         mv tmp.bim BS_${x}.bim
-    adamixture --k ${k} --data_path BS_${x}.bed --save_dir . --init_file . --name BS_${x} |\
+    adamixture --k ${k} --data_path BS_${x}.bed --save_dir . --cv --name BS_${x} |\
         tee logBS.${k}.${x}.out
     mv BS_${x}.${k}.Q K${k}_run${x}.Q
     mv BS_${x}.${k}.P K${k}_run${x}.P
@@ -91,7 +93,6 @@ process admixboost {
     mv BS_${x}.${k}.Q K${k}_run${x}.Q
     mv BS_${x}.${k}.P K${k}_run${x}.P
     """
-    afterScript "rm BS_${x}.bed BS_${x}.bim BS_${x}.fam BS_${x}.tfam BS_${x}.tped"
 }
 
 process tped2bed{

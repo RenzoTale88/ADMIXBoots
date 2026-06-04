@@ -11,10 +11,10 @@ process clumpp{
     path fam
 
     output:
-    path "./K${k}"
-    path "./K${k}/Clumpp_userdef.miscfile" 
-    tuple val(k), path("./K${k}/Sorted.${k}.txt") 
-    path "./K${k}/Hpr.${k}.txt"
+    path "./K${k}", emit: clumpp_out
+    path "./K${k}/Clumpp_userdef.miscfile", emit: clumpp_misc
+    tuple val(k), path("./K${k}/Sorted.${k}.txt"), emit: clumpp_ks
+    path "./K${k}/Hpr.${k}.txt", emit: clumpp_hpr
 
     // Concatenate Bootstrap Trees
     script:
@@ -40,19 +40,23 @@ process clumppling{
     path fam
 
     output:
-    path "./CLUMPPLING/"
+    path "CLUMPPLING/", emit: clumppling_out
+    path "CLUMPPLING/modes/*_avg.Q", emit: clumpp_ks
+    path "CLUMPPLING/modes/mode_stats.txt", emit: clumpp_hpr
 
-    // Concatenate Bootstrap Trees
+
+    // Combine all the outputs using Clumppling
     script:
     """
     awk '{print \$1}' $fam > population_labels.txt
-    clumppling -i Qs/ -o ./CLUMPPLING/ -f admixture --extension .Q --ind_labels population_labels.txt
+    python -m clumppling -i Qs/ -o ./CLUMPPLING/ -f admixture --extension .Q --ind_labels population_labels.txt
     # Visualize stuff directly
-    kalignedoscope \\
+    python -m kalignedoscope \\
         --input CLUMPPLING/modes_aligned \\
         --alignment_file CLUMPPLING/alignment_acrossK/alignment_acrossK_rep.txt \\
-        --label_file CLUMPPLING/input/ind_labels_grouped.txt \\
-        --processed_membership CLUMPPLING/NEW_PATH_FOR_INTERMEDIATE_FILES
+        --label_file population_labels.txt \\
+        --processed_membership CLUMPPLING/INTERMEDIATE_FILES && \\
+        mv visualization.html CLUMPPLING/kalignedoscope_output
     """
 }
 
@@ -70,14 +74,26 @@ process getCVerrors{
     path "All_CVs.txt"
     path "All_Iters.txt"
 
-    shell:
-    '''
-    for i in !{logs}; do
-        grep -w CV $i >> All_CVs.txt
-        grep -w 'Converged in' $i | awk -v fid=$i '{print fid, $0}' >> All_Iters.txt
+    script:
+    if (params.clumper == "clumppling")
+        """
+        for i in ${logs}; do
+            grep -w "CV index" \$i >> All_CVs.txt
+            grep -w 'Convergence reached in' \$i | \
+                sed 's/\\.//g' | \
+                sed 's/Convergence reached in iteration/Converged in/g' | \
+                awk -v fid=\$i '{print fid, \$0}'>> All_Iters.txt
+        done
+        BestBootstrappedK All_CVs.txt > Best_K.txt
+        """
+    else
+    """
+    for i in ${logs}; do
+        grep -w CV \$i >> All_CVs.txt
+        grep -w 'Converged in' \$i | awk -v fid=\$i '{print fid, \$0}' >> All_Iters.txt
     done
     BestBootstrappedK All_CVs.txt > Best_K.txt
-    '''
+    """
 }
 
 
@@ -114,7 +130,7 @@ process plotStats{
 
     script:
     """
-    StatsPlots ${cvs} ${iters} ${hprimes}
+    StatsPlots ${cvs} ${iters} ${hprimes} ${params.tool} ${params.clumper}
     """
 }
 
